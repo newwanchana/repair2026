@@ -243,6 +243,7 @@ function escapeTelegramHtml(value) {
 function sendTelegramNotification(ticketData) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
   try {
+    // รองรับกรณีผู้ใช้เผลอใส่ token เป็นรูปแบบ bot<token>
     const botToken = String(TELEGRAM_BOT_TOKEN).trim().replace(/^bot/i, '');
     const chatId = String(TELEGRAM_CHAT_ID).trim();
     if (!botToken || !chatId) return;
@@ -291,7 +292,7 @@ function sendTelegramNotification(ticketData) {
     const responseCode = response.getResponseCode();
     const responseText = response.getContentText();
     let responseData = null;
-    try { responseData = JSON.parse(responseText); } catch (err) {}
+    try { responseData = JSON.parse(responseText); } catch (err) { console.error('Telegram response parse error:', responseText); }
     const success = responseCode >= 200 && responseCode < 300 && responseData && responseData.ok === true;
     if (!success) {
       console.error('Telegram API error:', { method: method, status: responseCode, body: responseText });
@@ -304,7 +305,7 @@ function sendTelegramNotification(ticketData) {
         const fallbackCode = fallbackResponse.getResponseCode();
         const fallbackText = fallbackResponse.getContentText();
         let fallbackData = null;
-        try { fallbackData = JSON.parse(fallbackText); } catch (err) {}
+        try { fallbackData = JSON.parse(fallbackText); } catch (err) { console.error('Telegram fallback parse error:', fallbackText); }
         if (!(fallbackCode >= 200 && fallbackCode < 300 && fallbackData && fallbackData.ok === true)) {
           console.error('Telegram fallback sendMessage error:', { status: fallbackCode, body: fallbackText });
         }
