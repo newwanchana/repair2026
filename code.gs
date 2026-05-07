@@ -1,6 +1,12 @@
 // ===== CONFIGURATION =====
 const SPREADSHEET_ID = '1nAek9XjJT_KcJVzM8pm3Y8nVZ7GZlLtUeCcxacZRx58';  //ใส่ ID
 const DRIVE_FOLDER_ID = '18IfyUFmCWxPIYVcCwlCU_ByhtkSTRWNv';            //ใส่ ID
+// Telegram Bot setup:
+// 1) สร้าง Bot โดยคุยกับ @BotFather ใน Telegram แล้วนำ Token มาใส่ด้านล่าง
+// 2) หา Chat ID / Group ID โดยเพิ่ม bot เข้าแชทหรือกลุ่ม แล้วเรียก Telegram API เช่น getUpdates
+const TELEGRAM_API_BASE = 'https://api.telegram.org/bot';
+const TELEGRAM_BOT_TOKEN = ''; // ใส่ Token ของ Telegram Bot เช่น '123456789:AAF...'
+const TELEGRAM_CHAT_ID = '';   // ใส่ Chat ID หรือ Group ID เช่น '-1001234567890'
 const DATA_SHEET_NAME = 'Data';
 const EQUIPMENT_SHEET_NAME = 'EquipmentDB';
 
@@ -227,6 +233,89 @@ function deleteImageFromDrive(imageUrl) {
 
 // ===== HELPERS =====
 
+function escapeTelegramHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function sendTelegramNotification(ticketData) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    // รองรับกรณีผู้ใช้เผลอใส่ token เป็นรูปแบบ bot<token>
+    const botToken = String(TELEGRAM_BOT_TOKEN).trim().replace(/^bot/i, '');
+    const chatId = String(TELEGRAM_CHAT_ID).trim();
+    if (!botToken || !chatId) return;
+    const categoryMap = {
+      building: 'อาคาร',
+      location: 'สถานที่',
+      classroom: 'อุปกรณ์ห้องเรียน',
+      'audio-visual': 'อุปกรณ์โสตทัศนูปกรณ์',
+      electrical: 'อุปกรณ์ไฟฟ้า',
+      plumbing: 'อุปกรณ์ประปา',
+      other: 'อื่นๆ'
+    };
+    const urgencyMap = {
+      low: '🟢 ต่ำ',
+      medium: '🟡 ปานกลาง',
+      high: '🔴 สูง'
+    };
+    const message = [
+      '<b>🔔 แจ้งซ่อมใหม่!</b>',
+      '',
+      '<b>🎫 รหัสงาน:</b> ' + escapeTelegramHtml(ticketData.ticket_id),
+      '<b>👤 ผู้แจ้ง:</b> ' + escapeTelegramHtml(ticketData.requester_name),
+      '<b>🏢 กลุ่มงาน:</b> ' + escapeTelegramHtml(ticketData.department),
+      '<b>📦 หมวดหมู่:</b> ' + escapeTelegramHtml(categoryMap[ticketData.equipment_category] || ticketData.equipment_category || 'อื่นๆ'),
+      '<b>🔧 อุปกรณ์/พื้นที่:</b> ' + escapeTelegramHtml(ticketData.equipment),
+      '<b>📝 รายละเอียด:</b> ' + escapeTelegramHtml(ticketData.description),
+      '<b>⚡ ความเร่งด่วน:</b> ' + escapeTelegramHtml(urgencyMap[ticketData.urgency] || ticketData.urgency || '-')
+    ].join('\n');
+    const imageUrl = String(ticketData.image_url || '').trim();
+    const method = imageUrl ? 'sendPhoto' : 'sendMessage';
+    const payload = imageUrl ? {
+      chat_id: chatId,
+      photo: imageUrl,
+      caption: message,
+      parse_mode: 'HTML'
+    } : {
+      chat_id: chatId,
+      text: message,
+      parse_mode: 'HTML'
+    };
+    const response = UrlFetchApp.fetch(TELEGRAM_API_BASE + botToken + '/' + method, {
+      method: 'post',
+      payload: payload,
+      muteHttpExceptions: true
+    });
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    let responseData = null;
+    try { responseData = JSON.parse(responseText); } catch (err) { console.error('Telegram response parse error:', responseText); }
+    const success = responseCode >= 200 && responseCode < 300 && responseData && responseData.ok === true;
+    if (!success) {
+      console.error('Telegram API error:', { method: method, status: responseCode, body: responseText });
+      if (method === 'sendPhoto') {
+        const fallbackResponse = UrlFetchApp.fetch(TELEGRAM_API_BASE + botToken + '/sendMessage', {
+          method: 'post',
+          payload: { chat_id: chatId, text: message, parse_mode: 'HTML' },
+          muteHttpExceptions: true
+        });
+        const fallbackCode = fallbackResponse.getResponseCode();
+        const fallbackText = fallbackResponse.getContentText();
+        let fallbackData = null;
+        try { fallbackData = JSON.parse(fallbackText); } catch (err) { console.error('Telegram fallback parse error:', fallbackText); }
+        if (!(fallbackCode >= 200 && fallbackCode < 300 && fallbackData && fallbackData.ok === true)) {
+          console.error('Telegram fallback sendMessage error:', { status: fallbackCode, body: fallbackText });
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error sending Telegram notification:', e);
+  }
+}
+
 function sanitizeString(str) {
   if (typeof str !== 'string') return str;
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').trim();
@@ -263,6 +352,16 @@ function createTicket(data) {
       data.urgency, 'pending', '', now, now, imageUrl,
       sanitizeString(data.equipment_category || '')
     ]);
+    sendTelegramNotification({
+      ticket_id: ticketId,
+      requester_name: data.requester_name,
+      department: data.department,
+      equipment_category: data.equipment_category || '',
+      equipment: data.equipment,
+      description: data.description,
+      urgency: data.urgency,
+      image_url: imageUrl
+    });
     return { success: true, ticket_id: ticketId, backend_id: backendId };
   } catch (e) {
     return { success: false, error: e.toString() };
