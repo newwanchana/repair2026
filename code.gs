@@ -1,6 +1,11 @@
 // ===== CONFIGURATION =====
 const SPREADSHEET_ID = '1nAek9XjJT_KcJVzM8pm3Y8nVZ7GZlLtUeCcxacZRx58';  //ใส่ ID
 const DRIVE_FOLDER_ID = '18IfyUFmCWxPIYVcCwlCU_ByhtkSTRWNv';            //ใส่ ID
+// Telegram Bot setup:
+// 1) สร้าง Bot โดยคุยกับ @BotFather ใน Telegram แล้วนำ Token มาใส่ด้านล่าง
+// 2) หา Chat ID / Group ID โดยเพิ่ม bot เข้าแชทหรือกลุ่ม แล้วเรียก Telegram API เช่น getUpdates
+const TELEGRAM_BOT_TOKEN = ''; // ใส่ Token ของ Telegram Bot เช่น '123456789:AAF...'
+const TELEGRAM_CHAT_ID = '';   // ใส่ Chat ID หรือ Group ID เช่น '-1001234567890'
 const DATA_SHEET_NAME = 'Data';
 const EQUIPMENT_SHEET_NAME = 'EquipmentDB';
 
@@ -227,6 +232,64 @@ function deleteImageFromDrive(imageUrl) {
 
 // ===== HELPERS =====
 
+function escapeTelegramHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function sendTelegramNotification(ticketData) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    const categoryMap = {
+      building: 'อาคาร',
+      location: 'สถานที่',
+      classroom: 'อุปกรณ์ห้องเรียน',
+      'audio-visual': 'อุปกรณ์โสตทัศนูปกรณ์',
+      electrical: 'อุปกรณ์ไฟฟ้า',
+      plumbing: 'อุปกรณ์ประปา',
+      other: 'อื่นๆ'
+    };
+    const urgencyMap = {
+      low: '🟢 ต่ำ',
+      medium: '🟡 ปานกลาง',
+      high: '🔴 สูง'
+    };
+    const message = [
+      '<b>🔔 แจ้งซ่อมใหม่!</b>',
+      '',
+      '<b>🎫 รหัสงาน:</b> ' + escapeTelegramHtml(ticketData.ticket_id),
+      '<b>👤 ผู้แจ้ง:</b> ' + escapeTelegramHtml(ticketData.requester_name),
+      '<b>🏢 กลุ่มงาน:</b> ' + escapeTelegramHtml(ticketData.department),
+      '<b>📦 หมวดหมู่:</b> ' + escapeTelegramHtml(categoryMap[ticketData.equipment_category] || ticketData.equipment_category || 'อื่นๆ'),
+      '<b>🔧 อุปกรณ์/พื้นที่:</b> ' + escapeTelegramHtml(ticketData.equipment),
+      '<b>📝 รายละเอียด:</b> ' + escapeTelegramHtml(ticketData.description),
+      '<b>⚡ ความเร่งด่วน:</b> ' + escapeTelegramHtml(urgencyMap[ticketData.urgency] || ticketData.urgency || '-')
+    ].join('\n');
+    const imageUrl = String(ticketData.image_url || '').trim();
+    const method = imageUrl ? 'sendPhoto' : 'sendMessage';
+    const payload = imageUrl ? {
+      chat_id: TELEGRAM_CHAT_ID,
+      photo: imageUrl,
+      caption: message,
+      parse_mode: 'HTML'
+    } : {
+      chat_id: TELEGRAM_CHAT_ID,
+      text: message,
+      parse_mode: 'HTML'
+    };
+    UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/' + method, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+  } catch (e) {
+    console.error('Error sending Telegram notification:', e);
+  }
+}
+
 function sanitizeString(str) {
   if (typeof str !== 'string') return str;
   return str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').trim();
@@ -263,6 +326,16 @@ function createTicket(data) {
       data.urgency, 'pending', '', now, now, imageUrl,
       sanitizeString(data.equipment_category || '')
     ]);
+    sendTelegramNotification({
+      ticket_id: ticketId,
+      requester_name: data.requester_name,
+      department: data.department,
+      equipment_category: data.equipment_category || '',
+      equipment: data.equipment,
+      description: data.description,
+      urgency: data.urgency,
+      image_url: imageUrl
+    });
     return { success: true, ticket_id: ticketId, backend_id: backendId };
   } catch (e) {
     return { success: false, error: e.toString() };
