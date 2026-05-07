@@ -243,6 +243,9 @@ function escapeTelegramHtml(value) {
 function sendTelegramNotification(ticketData) {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
   try {
+    const botToken = String(TELEGRAM_BOT_TOKEN).trim().replace(/^bot/i, '');
+    const chatId = String(TELEGRAM_CHAT_ID).trim();
+    if (!botToken || !chatId) return;
     const categoryMap = {
       building: 'อาคาร',
       location: 'สถานที่',
@@ -271,21 +274,42 @@ function sendTelegramNotification(ticketData) {
     const imageUrl = String(ticketData.image_url || '').trim();
     const method = imageUrl ? 'sendPhoto' : 'sendMessage';
     const payload = imageUrl ? {
-      chat_id: TELEGRAM_CHAT_ID,
+      chat_id: chatId,
       photo: imageUrl,
       caption: message,
       parse_mode: 'HTML'
     } : {
-      chat_id: TELEGRAM_CHAT_ID,
+      chat_id: chatId,
       text: message,
       parse_mode: 'HTML'
     };
-    UrlFetchApp.fetch(TELEGRAM_API_BASE + TELEGRAM_BOT_TOKEN + '/' + method, {
+    const response = UrlFetchApp.fetch(TELEGRAM_API_BASE + botToken + '/' + method, {
       method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify(payload),
+      payload: payload,
       muteHttpExceptions: true
     });
+    const responseCode = response.getResponseCode();
+    const responseText = response.getContentText();
+    let responseData = null;
+    try { responseData = JSON.parse(responseText); } catch (err) {}
+    const success = responseCode >= 200 && responseCode < 300 && responseData && responseData.ok === true;
+    if (!success) {
+      console.error('Telegram API error:', { method: method, status: responseCode, body: responseText });
+      if (method === 'sendPhoto') {
+        const fallbackResponse = UrlFetchApp.fetch(TELEGRAM_API_BASE + botToken + '/sendMessage', {
+          method: 'post',
+          payload: { chat_id: chatId, text: message, parse_mode: 'HTML' },
+          muteHttpExceptions: true
+        });
+        const fallbackCode = fallbackResponse.getResponseCode();
+        const fallbackText = fallbackResponse.getContentText();
+        let fallbackData = null;
+        try { fallbackData = JSON.parse(fallbackText); } catch (err) {}
+        if (!(fallbackCode >= 200 && fallbackCode < 300 && fallbackData && fallbackData.ok === true)) {
+          console.error('Telegram fallback sendMessage error:', { status: fallbackCode, body: fallbackText });
+        }
+      }
+    }
   } catch (e) {
     console.error('Error sending Telegram notification:', e);
   }
