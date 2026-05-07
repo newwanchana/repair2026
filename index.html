@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบแจ้งซ่อมและติดตาม</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+/* QRCode pure-JS (MIT) — works inside GAS iframe, no CDN needed */
+(function(w){var QREcl={L:1,M:0,Q:3,H:2};var _GLog=new Array(256),_GExp=new Array(256);(function(){var a=1;for(var i=0;i<255;i++){_GExp[i]=a;_GLog[a]=i;a<<=1;if(a&0x100)a^=0x11d;}for(var i=255;i<512;i++)_GExp[i]=_GExp[i-255];})();function glog(n){if(n<1)throw new Error("glog("+n+")");return _GLog[n];}function gexp(n){while(n<0)n+=255;while(n>=256)n-=255;return _GExp[n];}var QRPoly=function(num,shift){var o=0;while(o<num.length&&num[o]==0)o++;this.num=new Array(num.length-o+shift);for(var i=0;i<num.length-o;i++)this.num[i]=num[i+o];};QRPoly.prototype={get:function(i){return this.num[i];},getLength:function(){return this.num.length;},multiply:function(e){var num=new Array(this.getLength()+e.getLength()-1);for(var i=0;i<this.getLength();i++)for(var j=0;j<e.getLength();j++)num[i+j]^=gexp(glog(this.get(i))+glog(e.get(j)));return new QRPoly(num,0);},mod:function(e){if(this.getLength()-e.getLength()<0)return this;var ratio=glog(this.get(0))-glog(e.get(0));var num=new Array(this.getLength());for(var i=0;i<this.getLength();i++)num[i]=this.get(i);for(var i=0;i<e.getLength();i++)num[i]^=gexp(glog(e.get(i))+ratio);return new QRPoly(num,0).mod(e);}};
+var RST=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16]];
+function getRSB(tn,ecl){var t=tn-1;var ei=[QREcl.L,QREcl.M,QREcl.Q,QREcl.H].indexOf(ecl);if(ei<0||t<0||t>=40)return undefined;var row=RST[t*4+ei];if(!row)return undefined;var list=[];for(var i=0;i<row.length;i+=3)for(var j=0;j<row[i];j++)list.push({totalCount:row[i+1],dataCount:row[i+2]});return list;}
+var QRBitBuf=function(){this.buffer=[];this.length=0;};QRBitBuf.prototype={get:function(i){return((this.buffer[Math.floor(i/8)]>>>(7-i%8))&1)==1;},put:function(num,len){for(var i=0;i<len;i++)this.putBit(((num>>>(len-i-1))&1)==1);},getLengthInBits:function(){return this.length;},putBit:function(bit){var bi=Math.floor(this.length/8);if(this.buffer.length<=bi)this.buffer.push(0);if(bit)this.buffer[bi]|=(0x80>>>(this.length%8));this.length++;}};
+var PPT=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];
+var G15=(1<<10)|(1<<8)|(1<<5)|(1<<4)|(1<<2)|(1<<1)|(1<<0),G18=(1<<12)|(1<<11)|(1<<10)|(1<<9)|(1<<8)|(1<<5)|(1<<2)|(1<<0),G15M=(1<<14)|(1<<12)|(1<<10)|(1<<4)|(1<<1);
+function getBCHD(data){var d=0;while(data!=0){d++;data>>>=1;}return d;}
+function getBCHTI(data){var d=data<<10;while(getBCHD(d)-getBCHD(G15)>=0)d^=(G15<<(getBCHD(d)-getBCHD(G15)));return((data<<10)|d)^G15M;}
+function getBCHTN(data){var d=data<<12;while(getBCHD(d)-getBCHD(G18)>=0)d^=(G18<<(getBCHD(d)-getBCHD(G18)));return(data<<12)|d;}
+function getMask(p,i,j){switch(p){case 0:return(i+j)%2==0;case 1:return i%2==0;case 2:return j%3==0;case 3:return(i+j)%3==0;case 4:return(Math.floor(i/2)+Math.floor(j/3))%2==0;case 5:return(i*j)%2+(i*j)%3==0;case 6:return((i*j)%2+(i*j)%3)%2==0;case 7:return((i*j)%3+(i+j)%2)%2==0;}return false;}
+function getECP(ecl){var a=new QRPoly([1],0);for(var i=0;i<ecl;i++)a=a.multiply(new QRPoly([1,gexp(i)],0));return a;}
+function getLIB(mode,type){if(type<10){if(mode==4)return 8;}else if(type<27){if(mode==4)return 16;}else{if(mode==4)return 16;}return 8;}
+function getLostPoint(qr){var mc=qr.mc,m=qr.modules,lp=0;for(var r=0;r<mc;r++)for(var c=0;c<mc;c++){var sc=0,dark=m[r][c];for(var dr=-1;dr<=1;dr++){if(r+dr<0||mc<=r+dr)continue;for(var dc=-1;dc<=1;dc++){if(c+dc<0||mc<=c+dc||!(dr||dc))continue;if(dark==m[r+dr][c+dc])sc++;}}if(sc>5)lp+=sc-2;}for(var r=0;r<mc-1;r++)for(var c=0;c<mc-1;c++){var cnt=0;if(m[r][c])cnt++;if(m[r+1][c])cnt++;if(m[r][c+1])cnt++;if(m[r+1][c+1])cnt++;if(cnt==0||cnt==4)lp+=3;}for(var r=0;r<mc;r++)for(var c=0;c<mc-6;c++){if(m[r][c]&&!m[r][c+1]&&m[r][c+2]&&m[r][c+3]&&m[r][c+4]&&!m[r][c+5]&&m[r][c+6])lp+=40;}for(var c=0;c<mc;c++)for(var r=0;r<mc-6;r++){if(m[r][c]&&!m[r+1][c]&&m[r+2][c]&&m[r+3][c]&&m[r+4][c]&&!m[r+5][c]&&m[r+6][c])lp+=40;}var dk=0;for(var c=0;c<mc;c++)for(var r=0;r<mc;r++)if(m[r][c])dk++;lp+=Math.abs(100*dk/mc/mc-50)/5*10;return lp;}
+function QRModel(tn,ecl){this.nVersion=tn;this.ecl=ecl;this.modules=null;this.mc=0;this.dataList=[];}
+QRModel.PAD0=0xEC;QRModel.PAD1=0x11;
+QRModel.prototype={addData:function(s){this.dataList.push(s);},make:function(){if(this.nVersion<1){for(var v=1;v<40;v++){var rsb=getRSB(v,this.ecl);if(!rsb)continue;var buf=new QRBitBuf(),dl=this.dataList;for(var i=0;i<dl.length;i++){buf.put(4,4);buf.put(dl[i].length,getLIB(4,v));for(var k=0;k<dl[i].length;k++)buf.put(dl[i].charCodeAt(k),8);}var tdc=0;for(var i=0;i<rsb.length;i++)tdc+=rsb[i].dataCount;if(buf.getLengthInBits()<=tdc*8){this.nVersion=v;break;}}}this.makeImpl(false,this._bestMask());},makeImpl:function(test,mp){this.mc=this.nVersion*4+17;var mc=this.mc;this.modules=new Array(mc);for(var r=0;r<mc;r++){this.modules[r]=new Array(mc);for(var c=0;c<mc;c++)this.modules[r][c]=null;}this._probe(0,0);this._probe(mc-7,0);this._probe(0,mc-7);this._adj();this._timing();this._typeInfo(test,mp);if(this.nVersion>=7)this._typeNum(test);var data=this._createData();this._mapData(data,mp);},_probe:function(row,col){for(var r=-1;r<=7;r++){if(row+r<=-1||this.mc<=row+r)continue;for(var c=-1;c<=7;c++){if(col+c<=-1||this.mc<=col+c)continue;if((0<=r&&r<=6&&(c==0||c==6))||(0<=c&&c<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=c&&c<=4))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},_bestMask:function(){var minLP=0,pat=0;for(var i=0;i<8;i++){this.makeImpl(true,i);var lp=getLostPoint(this);if(i==0||minLP>lp){minLP=lp;pat=i;}}return pat;},_timing:function(){for(var r=8;r<this.mc-8;r++)if(this.modules[r][6]==null)this.modules[r][6]=(r%2==0);for(var c=8;c<this.mc-8;c++)if(this.modules[6][c]==null)this.modules[6][c]=(c%2==0);},_adj:function(){var pos=PPT[this.nVersion-1];for(var i=0;i<pos.length;i++)for(var j=0;j<pos.length;j++){var row=pos[i],col=pos[j];if(this.modules[row][col]!=null)continue;for(var r=-2;r<=2;r++)for(var c=-2;c<=2;c++){if(r==-2||r==2||c==-2||c==2||(r==0&&c==0))this.modules[row+r][col+c]=true;else this.modules[row+r][col+c]=false;}}},_typeNum:function(test){var bits=getBCHTN(this.nVersion);for(var i=0;i<18;i++){var mod=(!test&&((bits>>i)&1)==1);this.modules[Math.floor(i/3)][i%3+this.mc-8-3]=mod;this.modules[i%3+this.mc-8-3][Math.floor(i/3)]=mod;}},_typeInfo:function(test,mp){var data=(this.ecl<<3)|mp,bits=getBCHTI(data);for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<6)this.modules[i][8]=mod;else if(i<8)this.modules[i+1][8]=mod;else this.modules[this.mc-15+i][8]=mod;}for(var i=0;i<15;i++){var mod=(!test&&((bits>>i)&1)==1);if(i<8)this.modules[8][this.mc-i-1]=mod;else if(i<9)this.modules[8][15-i-1+1]=mod;else this.modules[8][15-i-1]=mod;}this.modules[this.mc-8][8]=!test;},_createData:function(){var rsb=getRSB(this.nVersion,this.ecl);var buf=new QRBitBuf();var dl=this.dataList;for(var i=0;i<dl.length;i++){buf.put(4,4);buf.put(dl[i].length,getLIB(4,this.nVersion));for(var k=0;k<dl[i].length;k++)buf.put(dl[i].charCodeAt(k),8);}var tdc=0;for(var i=0;i<rsb.length;i++)tdc+=rsb[i].dataCount;if(buf.getLengthInBits()>tdc*8)throw new Error("overflow");if(buf.getLengthInBits()+4<=tdc*8)buf.put(0,4);while(buf.getLengthInBits()%8!=0)buf.putBit(false);while(true){if(buf.getLengthInBits()>=tdc*8)break;buf.put(QRModel.PAD0,8);if(buf.getLengthInBits()>=tdc*8)break;buf.put(QRModel.PAD1,8);}var maxDc=0,maxEc=0,dcd=new Array(rsb.length),ecd=new Array(rsb.length);var offset=0;for(var r=0;r<rsb.length;r++){var dc=rsb[r].dataCount,ec=rsb[r].totalCount-dc;maxDc=Math.max(maxDc,dc);maxEc=Math.max(maxEc,ec);dcd[r]=new Array(dc);for(var i=0;i<dc;i++)dcd[r][i]=0xff&buf.buffer[i+offset];offset+=dc;var rsp=getECP(ec),rawp=new QRPoly(dcd[r],rsp.getLength()-1),modp=rawp.mod(rsp);ecd[r]=new Array(rsp.getLength()-1);for(var i=0;i<ecd[r].length;i++){var mi=i+modp.getLength()-ecd[r].length;ecd[r][i]=(mi>=0)?modp.get(mi):0;}}var tcc=0;for(var i=0;i<rsb.length;i++)tcc+=rsb[i].totalCount;var data=new Array(tcc),idx=0;for(var i=0;i<maxDc;i++)for(var r=0;r<rsb.length;r++)if(i<dcd[r].length)data[idx++]=dcd[r][i];for(var i=0;i<maxEc;i++)for(var r=0;r<rsb.length;r++)if(i<ecd[r].length)data[idx++]=ecd[r][i];return data;},_mapData:function(data,mp){var inc=-1,row=this.mc-1,bi=7,by=0;for(var col=this.mc-1;col>0;col-=2){if(col==6)col--;while(true){for(var c=0;c<2;c++){if(this.modules[row][col-c]==null){var dark=false;if(by<data.length)dark=((data[by]>>>(bi))&1)==1;if(getMask(mp,row,col-c))dark=!dark;this.modules[row][col-c]=dark;bi--;if(bi==-1){by++;bi=7;}}}row+=inc;if(row<0||this.mc<=row){row-=inc;inc=-inc;break;}}}}};
+/* Public API */
+w.QRCode={toCanvas:function(canvas,text,opts,cb){opts=opts||{};var size=opts.width||200,margin=opts.margin!==undefined?opts.margin:1;try{var qr=new QRModel(-1,1);qr.addData(text);qr.make();var mc=qr.mc,px=Math.floor((size-margin*2)/mc),actual=px*mc+margin*2;canvas.width=actual;canvas.height=actual;var ctx=canvas.getContext('2d');var dk=(opts.color&&opts.color.dark)||'#000';var lt=(opts.color&&opts.color.light)||'#fff';ctx.fillStyle=lt;ctx.fillRect(0,0,actual,actual);ctx.fillStyle=dk;for(var r=0;r<mc;r++)for(var c=0;c<mc;c++)if(qr.modules[r][c])ctx.fillRect(c*px+margin,r*px+margin,px,px);if(cb)cb(null);}catch(e){if(cb)cb(e);}},toDataURL:function(text,opts,cb){var tmp=document.createElement('canvas');this.toCanvas(tmp,text,opts,function(e){if(e){if(cb)cb(e);}else{if(cb)cb(null,tmp.toDataURL('image/png'));}});}};
+})(window);
+  </script>
+  <style>
+    body{box-sizing:border-box;font-family:"Prompt",sans-serif;font-size:18px}
+    html,body{height:100%;margin:0;padding:0}
+    #app{min-height:100%}
+    @media print{
+      .no-print{display:none!important}
+      body{background:white!important}
+      .print-table{width:100%!important;border-collapse:collapse!important}
+      .print-table th,.print-table td{border:1px solid #000!important;padding:8px!important;text-align:left!important}
+    }
+    .status-pending{background:#9CA3AF;color:white}
+    .status-in-progress{background:#3B82F6;color:white}
+    .status-completed{background:#10B981;color:white}
+    .urgency-low{background:#D1FAE5;color:#065F46}
+    .urgency-medium{background:#FEF3C7;color:#92400E}
+    .urgency-high{background:#FEE2E2;color:#991B1B}
+    .card-shadow{box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06)}
+    .modal-backdrop{background:rgba(0,0,0,0.5)}
+    .animate-fade-in{animation:fadeIn .3s ease-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .gradient-header{background:linear-gradient(135deg,#556B2F 0%,#6B8E23 50%,#808000 100%)}
+    .upload-zone{border:2px dashed #CBD5E1;transition:all .3s ease}
+    .upload-zone:hover,.upload-zone.drag-over{border-color:#F59E0B;background:#FFFBEB}
+    .image-preview{position:relative;display:inline-block}
+    .image-preview img{max-width:100%;max-height:200px;border-radius:12px;object-fit:cover}
+    .image-preview .remove-btn{position:absolute;top:-8px;right:-8px;width:24px;height:24px;background:#EF4444;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:bold}
+    @keyframes modalSpinAnimation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    @keyframes modalPopIn{0%{transform:scale(.7);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+    @keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes modalFadeOut{from{opacity:1}to{opacity:0}}
+    body.modal-loading-active{overflow:hidden!important}
+    .menu-button{background:linear-gradient(135deg,#4A5D23 0%,#556B2F 50%,#6B8E23 100%);color:white;border:none;transition:all .3s ease}
+    .menu-button:hover{transform:scale(1.05);box-shadow:0 4px 8px rgba(0,0,0,.2)}
+    .menu-button.active{border-bottom:3px solid #F59E0B;color:#F59E0B;background:linear-gradient(135deg,#808000 0%,#6B8E23 50%,#556B2F 100%)}
+    footer{margin-top:auto;background:linear-gradient(135deg,#E3F2FD 0%,#BBDEFB 100%);padding:16px;text-align:center;font-size:14px;color:#1565C0;width:100%}
+    footer a{color:#0D47A1;font-weight:600;text-decoration:none}
+    footer a:hover{color:#1976D2;text-decoration:underline}
+    .camera-btn{background:linear-gradient(135deg,#4CAF50 0%,#8BC34A 50%,#CDDC39 100%);color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:500;cursor:pointer;transition:all .3s ease}
+    .camera-btn:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(76,175,80,.3)}
+    .qr-btn{background:linear-gradient(135deg,#FF9800 0%,#FFC107 50%,#FFEB3B 100%);color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:500;cursor:pointer;transition:all .3s ease}
+    .qr-btn:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(255,152,0,.3)}
+    .camera-modal,.qr-scanner-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+    .camera-container,.qr-scanner-container{background:white;border-radius:16px;overflow:hidden;width:90%;max-width:600px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+    .camera-header,.qr-scanner-header{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;color:white}
+    .camera-header{background:#4CAF50}.qr-scanner-header{background:#FF9800}
+    .camera-body,.qr-scanner-body{padding:20px}
+    #camera-preview,#qr-canvas{width:100%;height:300px;background:#f0f0f0;border:2px dashed #ccc;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+    #camera-preview video{width:100%;height:100%;object-fit:cover}
+    .camera-footer,.qr-scanner-footer{padding:16px 20px;display:flex;gap:10px;justify-content:center}
+    .camera-footer button,.qr-scanner-footer button{padding:10px 20px;border-radius:8px;font-weight:500;cursor:pointer}
+    .camera-footer .capture-btn{background:#4CAF50;color:white}
+    .camera-footer .close-btn,.qr-scanner-footer .close-btn{background:#e0e0e0;color:#333}
+    .category-select{background:white;border:2px solid #CBD5E1;border-radius:12px;padding:10px 16px;font-size:16px;transition:all .3s ease}
+    .category-select:focus{outline:none;border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+    /* Equipment DB styles */
+    .eq-card{border:1px solid #E5E7EB;border-radius:12px;padding:16px;transition:all .2s;background:white}
+    .eq-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);border-color:#F59E0B}
+    .qr-label-wrap{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+    .qr-label-item{border:1px solid #E5E7EB;border-radius:8px;padding:10px;text-align:center;background:#fff;cursor:pointer}
+    .qr-label-item:hover{border-color:#F59E0B}
+    .admin-menu-item.active-menu{background:#FFFBEB;color:#D97706;font-weight:600}
+  </style>
+</head>
+<body class="bg-gray-100">
+<div id="app" class="overflow-auto">
+
+<header class="gradient-header text-white py-4 px-6 no-print" id="main-header">
+  <div class="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+        <!--แก้LOGO-->
+        <img src="https://lh3.googleusercontent.com/d/1wRO6NnYNIdG6q18FWz-g0DNEESAA-iIH" alt="Logo" class="w-10 h-10" onerror="this.style. display='none'">
+      </div>
+      <div>
+        <h1 class="text-3xl font-bold">ระบบแจ้งซ่อมและติดตาม</h1>
+        <p class="text-lg opacity-80">โรงเรียนเตรียมอุดมศึกษาพัฒนาการ ปทุมธานี</p>
+      </div>
+    </div>
+    <nav class="flex gap-2">
+      <button id="tab-requester" onclick="switchTab('requester')" class="px-4 py-2 rounded-lg font-medium menu-button active flex items-center gap-1"><i class="bx bx-edit-alt"></i> แจ้งซ่อม</button>
+      <button id="tab-history" onclick="switchTab('history')" class="px-4 py-2 rounded-lg font-medium menu-button flex items-center gap-1"><i class="bx bx-history"></i> ประวัติ</button>
+      <button id="tab-admin" onclick="switchTab('admin')" class="px-4 py-2 rounded-lg font-medium menu-button flex items-center gap-1"><i class="bx bx-cog"></i> แอดมิน</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ==================== REQUESTER PAGE ==================== -->
+<main id="requester-page" class="max-w-7xl mx-auto p-6">
+  <div class="grid lg:grid-cols-2 gap-6" style="align-items:stretch;">
+    <div class="bg-white rounded-2xl card-shadow p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+          <span class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center"><i class="bx bx-edit-alt"></i></span>
+          แบบฟอร์มแจ้งซ่อม
+        </h2>
+        <button type="button" onclick="openGuideModal()" class="px-3 py-2 border-2 border-blue-500 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all flex items-center gap-1 text-lg">
+          <i class="bx bx-book-open text-2xl"></i> วิธีใช้งาน
+        </button>
+      </div>
+      <form id="repair-form" class="space-y-4">
+        <div><label class="block text-lg font-medium text-gray-700 mb-1">ชื่อผู้แจ้ง *</label>
+          <input type="text" id="requester-name" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500" placeholder="กรอกชื่อ-นามสกุล"></div>
+        <div>
+          <label class="block text-lg font-medium text-gray-700 mb-1">กลุ่มงาน/กลุ่มสาระ *</label>
+          <select id="department" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500">
+            <option value="">-- เลือกกลุ่มงาน/กลุ่มสาระ --</option>
+            <option value="งานอำนวยการ">งานอำนวยการ</option>
+            <option value="กลุ่มบริหารวิชาการ">กลุ่มบริหารวิชาการ</option>
+            <option value="กลุ่มบริหารงบประมาณและการเงิน">กลุ่มบริหารงบประมาณและการเงิน</option>
+            <option value="กลุ่มบริหารแผนงานและนโยบาย">กลุ่มบริหารแผนงานและนโยบาย</option>
+            <option value="กลุ่มบริหารทั่วไป">กลุ่มบริหารทั่วไป</option>
+            <option value="กลุ่มบริหารกิจการนักเรียน">กลุ่มบริหารกิจการนักเรียน</option>
+            <option value="กลุ่มบริหารกิจการนักเรียน">กลุ่มบริหารกิจการนักเรียน</option>
+            <option value="กลุ่มสาระการเรียนรู้คณิตศาสตร์">กลุ่มสาระการเรียนรู้คณิตศาสตร์</option>
+            <option value="กลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี">กลุ่มสาระการเรียนรู้วิทยาศาสตร์และเทคโนโลยี</option>
+            <option value="กลุ่มสาระการเรียนรู้ภาษาไทย">กลุ่มสาระการเรียนรู้ภาษาไทย</option>
+            <option value="กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ">กลุ่มสาระการเรียนรู้ภาษาต่างประเทศ</option>
+            <option value="กลุ่มสาระการเรียนรู้สังคมศึกษา ศาสนาและวัฒนธรรม">กลุ่มสาระการเรียนรู้สังคมศึกษา ศาสนาและวัฒนธรรม</option>
+            <option value="กลุ่มสาระการเรียนรู้สุขศึกษา พลศึกษา">กลุ่มสาระการเรียนรู้สุขศึกษา พลศึกษา</option>
+            <option value="กลุ่มสาระการเรียนรู้ศิลปศึกษา">กลุ่มสาระการเรียนรู้ศิลปศึกษา</option>
+            <option value="กลุ่มสาระการเรียนรู้การงานอาชีพ">กลุ่มสาระการเรียนรู้การงานอาชีพ</option>
+            <option value="กิจกรรมพัฒนาผู้เรียน">กิจกรรมพัฒนาผู้เรียน</option>
+            <option value="งานแนะแนว">งานแนะแนว</option>
+            <option value="นักพัฒนาโรงเรียนและบุคลากรอื่นๆ">นักพัฒนาโรงเรียนและบุคลากรอื่นๆ</option> 
+            <option value="อื่นๆ">อื่นๆ</option>
+          </select>
+        </div>
+
+        <div>
+        <label class="block text-lg font-medium text-gray-700 mb-1">หมวดหมู่อุปกรณ์ *</label>
+          <select id="equipment-category" required class="w-full category-select">
+            <option value="">-- เลือกหมวดหมู่ --</option>
+            <option value="building">อาคาร</option>
+            <option value="location">สถานที่</option>
+            <option value="classroom">อุปกรณ์ห้องเรียน</option>
+            <option value="audio-visual">อุปกรณ์โสตทัศนูปกรณ์ในห้องเรียน</option>
+            <option value="electrical">อุปกรณ์ไฟฟ้า</option>
+            <option value="plumbing">อุปกรณ์ประปา</option>
+            <option value="other">อื่นๆ</option>
+          </select>
+        </div>
+
+
+        <div><label class="block text-lg font-medium text-gray-700 mb-1">อุปกรณ์/พื้นที่ที่ต้องการซ่อม *</label>
+          <input type="text" id="equipment" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500" placeholder="เช่น โต๊ะ นักเรียน"></div>
+        <div><label class="block text-lg font-medium text-gray-700 mb-1">รายละเอียดปัญหา *</label>
+          <textarea id="description" required rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 resize-none" placeholder="อธิบายปัญหาที่พบโดยละเอียด..."></textarea></div>
+        <div>
+          <label class="block text-lg font-medium text-gray-700 mb-1">รูปภาพประกอบ (ถ้ามี)</label>
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            <button type="button" onclick="openCameraModal()" class="camera-btn text-lg"><i class="bx bx-camera"></i> เปิดกล้อง</button>
+            <button type="button" onclick="openQRScannerModal()" class="qr-btn text-lg"><i class="bx bx-qrcode"></i> สแกน QR Code</button>
+          </div>
+          <div id="upload-zone" class="upload-zone rounded-xl p-6 text-center cursor-pointer">
+            <div id="upload-placeholder"><i class="bx bx-image-add text-4xl text-gray-400"></i><p class="text-gray-600 mt-2">คลิกหรือลากไฟล์รูปภาพมาวางที่นี่</p><p class="text-gray-400 text-lg mt-1">รองรับ JPG, PNG, GIF (ไม่เกิน 2MB)</p></div>
+            <div id="image-preview-container" class="hidden"><div class="image-preview"><img id="preview-image" src="" alt="Preview"><button type="button" id="remove-image-btn" class="remove-btn">✕</button></div></div>
+          </div>
+          <input type="file" id="image-input" accept="image/jpeg,image/png,image/gif" class="hidden">
+        </div>
+        <div>
+          <label class="block text-lg font-medium text-gray-700 mb-3">ความเร่งด่วน *</label>
+          <div class="flex gap-4 flex-wrap">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="urgency" value="low" class="w-4 h-4"><span class="px-3 py-1 rounded-full text-lg urgency-low">ต่ำ</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="urgency" value="medium" checked class="w-4 h-4"><span class="px-3 py-1 rounded-full text-lg urgency-medium">ปานกลาง</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="urgency" value="high" class="w-4 h-4"><span class="px-3 py-1 rounded-full text-lg urgency-high">สูง</span></label>
+          </div>
+        </div>
+        <button type="submit" id="submit-btn" class="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-2xl rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">
+          <i class="bx bx-send"></i> ส่งคำขอ
+        </button>
+      </form>
+      <div id="form-success" class="hidden text-center py-6 animate-fade-in">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="bx bx-check text-3xl text-green-600"></i></div>
+        <h3 class="text-2xl font-bold text-green-600">ส่งคำขอสำเร็จ!</h3>
+        <p class="text-gray-600 mt-1">รหัสงาน: <span id="success-ticket-id" class="font-mono font-bold"></span></p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl card-shadow p-6 flex flex-col" style="height:100%;min-height:0;box-sizing:border-box;">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2" style="flex-shrink:0;">
+        <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"><i class="bx bx-list-check"></i></span>
+        ติดตามสถานะการแจ้งซ่อม
+      </h2>
+      <div id="requester-tickets" class="space-y-3 overflow-y-auto" style="flex:1 1 0;min-height:0;">
+        <div class="text-center text-gray-500 py-8"><i class="bx bx-mailbox text-4xl"></i><p class="mt-2">ยังไม่มีรายการแจ้งซ่อม</p></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ==================== HISTORY PAGE ==================== -->
+<main id="history-page" class="hidden max-w-7xl mx-auto p-6">
+  <div class="bg-white rounded-2xl card-shadow p-6">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+      <span class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center"><i class="bx bx-history"></i></span>
+      ประวัติการแจ้งซ่อม
+    </h2>
+    <div class="mb-4 flex justify-between items-center flex-wrap gap-3">
+      <div class="flex gap-3 flex-wrap">
+        <select id="history-status" onchange="filterHistory()" class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"><option value="">ทุกสถานะ</option><option value="pending">รอรับงาน</option><option value="in-progress">กำลังดำเนินการ</option><option value="completed">เสร็จสิ้น</option></select>
+        <select id="history-urgency" onchange="filterHistory()" class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"><option value="">ทุกความเร่งด่วน</option><option value="high">สูง</option><option value="medium">ปานกลาง</option><option value="low">ต่ำ</option></select>
+      </div>
+      <button onclick="printHistory()" class="px-4 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-700 flex items-center gap-2"><i class="bx bx-printer"></i> พิมพ์ประวัติ</button>
+    </div>
+    <div id="history-tickets" class="space-y-3 max-h-[600px] overflow-y-auto">
+      <div class="text-center text-gray-500 py-8"><i class="bx bx-mailbox text-4xl"></i><p class="mt-2">ยังไม่มีประวัติ</p></div>
+    </div>
+    <div id="history-pagination" class="hidden mt-6 flex justify-between items-center border-t pt-4">
+      <button id="history-prev-btn" onclick="previousHistoryPage()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 disabled:opacity-50 flex items-center gap-2"><i class="bx bx-chevron-left"></i> ย้อนกลับ</button>
+      <div class="text-lg text-gray-600">หน้า <span id="history-current-page">1</span> / <span id="history-total-pages">1</span></div>
+      <button id="history-next-btn" onclick="nextHistoryPage()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 disabled:opacity-50 flex items-center gap-2">ถัดไป <i class="bx bx-chevron-right"></i></button>
+    </div>
+  </div>
+</main>
+
+<!-- ==================== ADMIN PAGE ==================== -->
+<main id="admin-page" class="hidden p-0">
+  <div class="flex h-screen bg-gray-100">
+    <!-- Mobile sidebar backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden" onclick="closeSidebar()"></div>
+    <aside id="admin-sidebar" class="bg-white w-64 border-r border-gray-200 flex flex-col transition-transform duration-300 fixed lg:static top-0 left-0 h-full z-30 -translate-x-full lg:translate-x-0">
+      <div class="h-16 flex items-center px-4 border-b">
+        <span class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mr-2"><i class="bx bx-cog text-4xl text-amber-600"></i></span>
+        <div><div class="font-bold text-gray-800 text-lg uppercase tracking-wide">ระบบแจ้งซ่อม</div><div class="text-base text-gray-500">TUPPT</div></div>
+      </div>
+      <div class="px-4 py-3 border-b flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold">A</div>
+        <div><div class="text-xl font-semibold text-gray-800">ผู้ดูแลระบบ</div><div class="text-lg text-gray-500">IT Support</div></div>
+      </div>
+      <nav class="flex-1 overflow-y-auto py-4">
+        <p class="px-4 text-base font-semibold text-gray-400 uppercase mb-2">เมนูหลัก</p>
+        <button class="admin-menu-item w-full flex items-center px-4 py-2.5 text-lg text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition" data-target="admin-overview"><i class="bx bx-grid-alt text-3xl mr-3"></i> ภาพรวมระบบ</button>
+        <button class="admin-menu-item w-full flex items-center px-4 py-2.5 text-lg text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition" data-target="admin-tickets"><i class="bx bx-list-ul text-3xl mr-3"></i> รายการแจ้งซ่อม</button>
+        <button class="admin-menu-item w-full flex items-center px-4 py-2.5 text-lg text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition" data-target="admin-equipment"><i class="bx bx-devices text-3xl mr-3"></i> ฐานข้อมูลอุปกรณ์</button>
+        <button class="admin-menu-item w-full flex items-center px-4 py-2.5 text-lg text-gray-700 hover:bg-amber-50 hover:text-amber-600 transition" data-target="admin-reports"><i class="bx bx-bar-chart-alt-2 text-3xl mr-3"></i> สรุปรายงาน</button>
+      </nav>
+      <div class="border-t px-4 py-3 text-base text-gray-500">
+        <div class="flex items-center justify-between mb-2"><span>Tickets ทั้งหมด: <span id="sidebar-total" class="font-semibold text-gray-800">0</span></span></div>
+        <button onclick="logoutAdmin()" class="w-full flex items-center justify-center px-3 py-2 text-lg font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50"><i class="bx bx-log-out mr-1"></i> ออกจากระบบ</button>
+      </div>
+    </aside>
+    <div class="flex-1 flex flex-col min-h-screen overflow-hidden lg:ml-0">
+      <header class="h-16 bg-white border-b flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <button id="admin-hamburger" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100"><i class="bx bx-menu text-4xl"></i></button>
+          <div><div class="text-2xl font-semibold text-gray-800" id="admin-page-title">ภาพรวมระบบ</div><div class="text-base text-gray-500">จัดการรายการแจ้งซ่อมและติดตามสถานะ</div></div>
+        </div>
+        <div class="flex items-center gap-3 text-base">
+          <span class="px-2 py-1 rounded-full bg-gray-100 text-gray-600">วันนี้: <span id="admin-today"></span></span>
+          <button onclick="loadAllTickets()" class="hidden sm:flex items-center px-3 py-1.5 rounded-lg text-base bg-blue-500 text-white hover:bg-blue-600"><i class="bx bx-refresh mr-1"></i> รีเฟรช</button>
+        </div>
+      </header>
+      <section id="admin-content" class="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
+
+        <!-- OVERVIEW -->
+        <div id="admin-overview" class="admin-section space-y-4">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-2xl card-shadow p-4"><div class="flex items-center justify-between"><div><p class="text-lg text-gray-500">งานทั้งหมด</p><p id="kpi-total" class="text-3xl font-bold text-gray-800">0</p></div><div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><i class="bx bx-list-ul text-3xl text-purple-700"></i></div></div></div>
+            <div class="bg-white rounded-2xl card-shadow p-4"><div class="flex items-center justify-between"><div><p class="text-lg text-gray-500">รอรับงาน</p><p id="kpi-pending" class="text-3xl font-bold text-gray-500">0</p></div><div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center"><i class="bx bx-time-five text-3xl text-gray-700"></i></div></div></div>
+            <div class="bg-white rounded-2xl card-shadow p-4"><div class="flex items-center justify-between"><div><p class="text-lg text-gray-500">กำลังดำเนินการ</p><p id="kpi-progress" class="text-3xl font-bold text-blue-600">0</p></div><div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center"><i class="bx bx-wrench text-3xl text-blue-700"></i></div></div></div>
+            <div class="bg-white rounded-2xl card-shadow p-4"><div class="flex items-center justify-between"><div><p class="text-lg text-gray-500">เสร็จสิ้น</p><p id="kpi-completed" class="text-3xl font-bold text-green-600">0</p></div><div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center"><i class="bx bx-check-circle text-3xl text-green-700"></i></div></div></div>
+          </div>
+          <div class="grid lg:grid-cols-2 gap-4">
+            <div class="bg-white rounded-2xl card-shadow p-4">
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">สรุปตามสถานะ</h3>
+              <div class="flex gap-3 text-base">
+                <div class="flex-1 p-3 rounded-xl bg-gray-50"><div class="flex items-center justify-between mb-1"><span class="font-medium text-gray-700">รอรับงาน</span><span id="chip-pending" class="font-semibold">0</span></div><div class="w-full bg-gray-200 h-1.5 rounded-full"><div id="bar-pending" class="h-1.5 bg-gray-500 rounded-full" style="width:0%"></div></div></div>
+                <div class="flex-1 p-3 rounded-xl bg-blue-50"><div class="flex items-center justify-between mb-1"><span class="font-medium text-blue-700">ดำเนินการ</span><span id="chip-progress" class="font-semibold text-blue-700">0</span></div><div class="w-full bg-blue-100 h-1.5 rounded-full"><div id="bar-progress" class="h-1.5 bg-blue-500 rounded-full" style="width:0%"></div></div></div>
+                <div class="flex-1 p-3 rounded-xl bg-green-50"><div class="flex items-center justify-between mb-1"><span class="font-medium text-green-700">เสร็จสิ้น</span><span id="chip-completed" class="font-semibold text-green-700">0</span></div><div class="w-full bg-green-100 h-1.5 rounded-full"><div id="bar-completed" class="h-1.5 bg-green-500 rounded-full" style="width:0%"></div></div></div>
+              </div>
+            </div>
+            <div class="bg-white rounded-2xl card-shadow p-4">
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">บันทึกกิจกรรมล่าสุด</h3>
+              <div id="admin-latest-list" class="space-y-2 text-base"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TICKETS -->
+        <div id="admin-tickets" class="admin-section hidden space-y-4">
+          <div class="bg-white rounded-2xl card-shadow p-4 no-print">
+            <div class="flex flex-wrap gap-4 items-center justify-between">
+              <div class="flex flex-wrap gap-3">
+                <select id="filter-status" onchange="applyFilters()" class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"><option value="">ทุกสถานะ</option><option value="pending">รอรับงาน</option><option value="in-progress">กำลังดำเนินการ</option><option value="completed">เสร็จสิ้น</option></select>
+                <select id="filter-urgency" onchange="applyFilters()" class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"><option value="">ทุกความเร่งด่วน</option><option value="high">สูง</option><option value="medium">ปานกลาง</option><option value="low">ต่ำ</option></select>
+                <select id="filter-technician" onchange="applyFilters()" class="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500"><option value="">ทุกช่าง</option><option value="ช่างสมชาย">ช่างสมชาย</option><option value="ช่างวิทยา">ช่างวิทยา</option><option value="ช่างประเสริฐ">ช่างประเสริฐ</option></select>
+              </div>
+              <div class="flex gap-2 flex-wrap">
+                <button onclick="loadAllTickets()" class="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 flex items-center gap-2 text-lg"><i class="bx bx-refresh"></i> รีเฟรช</button>
+                <button onclick="printTable()" class="px-4 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-700 flex items-center gap-2 text-lg"><i class="bx bx-printer"></i> พิมพ์</button>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl card-shadow overflow-hidden">
+            <div class="p-4 border-b"><h2 class="text-2xl font-bold text-gray-800">รายการคำขอซ่อม</h2></div>
+            <div class="overflow-x-auto">
+              <table id="admin-table" class="w-full print-table">
+                <thead class="bg-gray-50"><tr>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">รหัสงาน</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">วันที่แจ้ง</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">ผู้แจ้ง</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">รายละเอียด</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">รูปภาพ</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">สถานะ</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">ความเร่งด่วน</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600">ช่าง</th>
+                  <th class="px-4 py-3 text-left text-base font-semibold text-gray-600 no-print">สั่งการ</th>
+                </tr></thead>
+                <tbody id="admin-table-body">
+                  <tr><td colspan="9" class="px-4 py-8 text-center text-gray-500"><i class="bx bx-mailbox text-4xl"></i><p>ยังไม่มีรายการ</p></td></tr>
+                </tbody>
+              </table>
+              <div id="admin-pagination" class="hidden border-t px-4 py-3 flex items-center justify-between text-lg">
+                <button id="admin-prev-btn" onclick="previousAdminPage()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 disabled:opacity-50 flex items-center gap-2"><i class="bx bx-chevron-left"></i> ย้อนกลับ</button>
+                <div>หน้า <span id="admin-current-page">1</span> / <span id="admin-total-pages">1</span></div>
+                <button id="admin-next-btn" onclick="nextAdminPage()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 disabled:opacity-50 flex items-center gap-2">ถัดไป <i class="bx bx-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== EQUIPMENT DB SECTION ==================== -->
+        <div id="admin-equipment" class="admin-section hidden space-y-4">
+          <div class="bg-white rounded-2xl card-shadow p-5">
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+              <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center"><i class="bx bx-devices text-amber-600"></i></span>
+                ฐานข้อมูลอุปกรณ์
+              </h2>
+              <div class="flex gap-2 flex-wrap">
+                <button onclick="loadAllEquipment()" class="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 flex items-center gap-2 text-lg"><i class="bx bx-refresh"></i> รีเฟรช</button>
+                <button onclick="openEquipmentModal(null)" class="px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 flex items-center gap-2 text-lg"><i class="bx bx-plus"></i> เพิ่มอุปกรณ์</button>
+                <button onclick="openQRBulkModal()" class="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 flex items-center gap-2 text-lg"><i class="bx bx-qrcode"></i> พิมพ์ QR ทั้งหมด</button>
+              </div>
+            </div>
+            <!-- Search -->
+            <div class="mb-4">
+              <input type="text" id="eq-search" onkeyup="filterEquipmentList()" placeholder="🔍 ค้นหาด้วยรหัส, ชื่อ, สถานที่..." class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 text-lg">
+            </div>
+            <!-- Equipment List -->
+            <div id="equipment-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div class="col-span-full text-center text-gray-400 py-12"><i class="bx bx-package text-5xl"></i><p class="mt-2">ยังไม่มีข้อมูลอุปกรณ์</p><p class="text-lg mt-1">กดปุ่ม "เพิ่มอุปกรณ์" เพื่อเริ่มต้น</p></div>
+            </div>
+          </div>
+
+          <!-- Sample data panel -->
+
+          <!-- ตัวอย่างอุปกรณ์-->
+          <!--
+          <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5">
+            <h3 class="font-bold text-blue-800 mb-3 flex items-center gap-2"><i class="bx bx-info-circle"></i> ข้อมูลตัวอย่าง — กดเพื่อเพิ่มลงระบบ</h3>
+            <p class="text-lg text-blue-700 mb-3">อุปกรณ์ตัวอย่างด้านล่างพร้อม QR Code ที่สามารถพิมพ์แปะที่อุปกรณ์ได้ทันที</p>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+
+              
+              
+              <button onclick="addSampleEquipment('EQ-PC-101','คอมพิวเตอร์ห้อง 101 เครื่องที่ 1','ห้อง 101 อาคาร A','computer','Intel i5 RAM 8GB')" class="text-left p-3 bg-white border border-blue-200 rounded-xl hover:border-amber-400 hover:shadow transition text-lg">
+                <div class="font-mono font-bold text-amber-600">EQ-PC-101</div>
+                <div class="font-medium text-gray-700">คอมพิวเตอร์ห้อง 101 #1</div>
+                <div class="text-gray-500 text-base">ห้อง 101 อาคาร A</div>
+              </button>
+              <button onclick="addSampleEquipment('EQ-PC-102','คอมพิวเตอร์ห้อง 101 เครื่องที่ 2','ห้อง 101 อาคาร A','computer','Intel i5 RAM 8GB')" class="text-left p-3 bg-white border border-blue-200 rounded-xl hover:border-amber-400 hover:shadow transition text-lg">
+                <div class="font-mono font-bold text-amber-600">EQ-PC-102</div>
+                <div class="font-medium text-gray-700">คอมพิวเตอร์ห้อง 101 #2</div>
+                <div class="text-gray-500 text-base">ห้อง 101 อาคาร A</div>
+              </button>
+              <button onclick="addSampleEquipment('EQ-PJ-201','โปรเจคเตอร์ห้องประชุม A','ห้องประชุมชั้น 2 อาคาร A','projector','Epson EB-X51')" class="text-left p-3 bg-white border border-blue-200 rounded-xl hover:border-amber-400 hover:shadow transition text-lg">
+                <div class="font-mono font-bold text-amber-600">EQ-PJ-201</div>
+                <div class="font-medium text-gray-700">โปรเจคเตอร์ห้องประชุม A</div>
+                <div class="text-gray-500 text-base">ห้องประชุมชั้น 2</div>
+              </button>
+              <button onclick="addSampleEquipment('EQ-PR-301','เครื่องพิมพ์สำนักงาน IT','ห้อง IT ชั้น 1','printer','HP LaserJet Pro')" class="text-left p-3 bg-white border border-blue-200 rounded-xl hover:border-amber-400 hover:shadow transition text-lg">
+                <div class="font-mono font-bold text-amber-600">EQ-PR-301</div>
+                <div class="font-medium text-gray-700">เครื่องพิมพ์สำนักงาน IT</div>
+                <div class="text-gray-500 text-base">ห้อง IT ชั้น 1</div>
+              </button>
+              <button onclick="addSampleEquipment('EQ-SW-401','Switch Network ชั้น 3','Server Room ชั้น 3','network','Cisco SG350-28')" class="text-left p-3 bg-white border border-blue-200 rounded-xl hover:border-amber-400 hover:shadow transition text-lg">
+                <div class="font-mono font-bold text-amber-600">EQ-SW-401</div>
+                <div class="font-medium text-gray-700">Switch Network ชั้น 3</div>
+                <div class="text-gray-500 text-base">Server Room ชั้น 3</div>
+              </button>
+              <button onclick="addSampleEquipment('EQ-AP-501','Access Point ห้องสมุด','ห้องสมุดชั้น 1','network','TP-Link EAP245')" class="text-left p-3 bg-white border border-blue-200 rounded-xl hover:border-amber-400 hover:shadow transition text-lg">
+                <div class="font-mono font-bold text-amber-600">EQ-AP-501</div>
+                <div class="font-medium text-gray-700">Access Point ห้องสมุด</div>
+                <div class="text-gray-500 text-base">ห้องสมุดชั้น 1</div>
+              </button>
+              -->
+
+            </div>
+          </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div id="admin-reports" class="admin-section hidden space-y-4">
+          <div class="bg-white rounded-2xl card-shadow p-6 space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800">สรุปรายงานประจำเดือน</h2>
+            <ul class="text-lg text-gray-700 space-y-1">
+              <li>- จำนวนงานทั้งหมด: <span id="report-total" class="font-semibold">0</span></li>
+              <li>- งานที่เสร็จสิ้น: <span id="report-completed" class="font-semibold">0</span></li>
+              <li>- งานค้าง: <span id="report-open" class="font-semibold">0</span></li>
+            </ul>
+            <div class="grid lg:grid-cols-3 gap-4">
+              <div class="bg-gray-50 rounded-xl p-3"><h3 class="text-lg font-semibold text-gray-800 mb-2 text-center">จำนวนงานตามสถานะ</h3><canvas id="chartByStatus" height="180"></canvas></div>
+              <div class="bg-gray-50 rounded-xl p-3"><h3 class="text-lg font-semibold text-gray-800 mb-2 text-center">สัดส่วนตามความเร่งด่วน</h3><canvas id="chartByUrgency" height="180"></canvas></div>
+              <div class="bg-gray-50 rounded-xl p-3"><h3 class="text-lg font-semibold text-gray-800 mb-2 text-center">แนวโน้มงานรายวัน</h3><canvas id="chartByDate" height="180"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- Camera Modal -->
+<div id="camera-modal" class="camera-modal"><div class="camera-container"><div class="camera-header"><h3>เปิดกล้อง</h3><button onclick="closeCameraModal()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer">&times;</button></div><div class="camera-body"><div id="camera-preview"><video id="camera-video" autoplay playsinline></video></div></div><div class="camera-footer"><button onclick="capturePhoto()" class="capture-btn">ถ่ายภาพ</button><button onclick="closeCameraModal()" class="close-btn">ปิด</button></div></div></div>
+
+<!-- QR Scanner Modal -->
+<div id="qr-scanner-modal" class="qr-scanner-modal"><div class="qr-scanner-container"><div class="qr-scanner-header"><h3>สแกน QR Code</h3><button onclick="closeQRScannerModal()" style="background:none;border:none;color:white;font-size:20px;cursor:pointer">&times;</button></div><div class="qr-scanner-body"><div id="qr-canvas" style="width:100%;height:300px;background:#111;border-radius:12px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;"><canvas id="qr-canvas-element" style="width:100%;height:100%;object-fit:cover"></canvas><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid #F59E0B;border-radius:12px;pointer-events:none"></div></div><p class="text-center text-lg text-gray-500 mt-2">วาง QR Code ในกรอบสีเหลือง</p></div><div class="qr-scanner-footer"><button onclick="closeQRScannerModal()" class="close-btn" style="padding:10px 20px;border-radius:8px;background:#e0e0e0;color:#333;border:none;cursor:pointer;font-weight:500">ปิด</button></div></div></div>
+
+<!-- Login Modal -->
+<div id="login-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print">
+  <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md mx-4 animate-fade-in">
+    <div class="text-center mb-6"><div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="bx bx-lock-alt text-3xl text-amber-600"></i></div><h2 class="text-3xl font-bold text-gray-800">เข้าสู่ระบบแอดมิน</h2><p class="text-gray-500 text-lg mt-1">กรุณากรอกข้อมูลเพื่อเข้าใช้งาน</p></div>
+    <form id="login-form" class="space-y-4">
+      <div><label class="block text-lg font-medium text-gray-700 mb-1">Username</label><input type="text" id="login-user" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500" placeholder="กรอก Username"></div>
+      <div><label class="block text-lg font-medium text-gray-700 mb-1">Password</label><input type="password" id="login-pass" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500" placeholder="กรอก Password"></div>
+      <div id="login-error" class="hidden text-red-500 text-lg text-center py-2 bg-red-50 rounded-lg">Username หรือ Password ไม่ถูกต้อง</div>
+      <div class="flex gap-3"><button type="button" onclick="closeLoginModal()" class="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50">ยกเลิก</button><button type="submit" class="flex-1 py-3 bg-amber-500 text-white font-medium rounded-xl hover:bg-amber-600">เข้าสู่ระบบ</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Equipment Modal (Add/Edit) -->
+
+<div id="equipment-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print">
+  <div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-lg mx-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-5">
+      <h3 class="text-2xl font-bold text-gray-800" id="equipment-modal-title">เพิ่มอุปกรณ์ใหม่</h3>
+      <button onclick="closeEquipmentModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 text-2xl">✕</button>
+    </div>
+    <form id="equipment-form" class="space-y-4">
+      <input type="hidden" id="eq-original-code">
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-1">รหัสอุปกรณ์ * <span class="text-base text-gray-400">(จะถูกสร้างเป็น QR Code)</span></label>
+        <input type="text" id="eq-code" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 font-mono" placeholder="เช่น EQ-PC-101">
+        <p class="text-base text-gray-400 mt-1">แนะนำรูปแบบ: EQ-[ประเภท]-[หมายเลข] เช่น EQ-PC-001, EQ-PJ-002</p>
+      </div>
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-1">ชื่ออุปกรณ์ *</label>
+        <input type="text" id="eq-name" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500" placeholder="เช่น เครื่องเสียง ห้อง211">
+      </div>
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-1">สถานที่ติดตั้ง</label>
+        <input type="text" id="eq-location" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500" placeholder="เช่น ห้อง211 อาคาร2 ชั้น 1">
+      </div>
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-1">หมวดหมู่</label>
+        <select id="eq-category" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500">
+          <option value="">-- เลือกหมวดหมู่ --</option>
+          <option value="building">อาคาร</option>
+          <option value="location">สถานที่</option>
+          <option value="classroom">อุปกรณ์ห้องเรียน</option>
+          <option value="audio-visual">อุปกรณ์โสตทัศนูปกรณ์ในห้องเรียน</option>
+          <option value="electrical">อุปกรณ์ไฟฟ้า</option>
+          <option value="plumbing">อุปกรณ์ประปา</option>
+          <option value="other">อื่นๆ</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-lg font-medium text-gray-700 mb-1">หมายเหตุ / รุ่น / สเปค</label>
+        <textarea id="eq-note" rows="2" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 resize-none" placeholder="เช่น Intel i5 RAM 8GB SSD 256GB"></textarea>
+      </div>
+      <!-- QR Preview -->
+      <div class="bg-gray-50 rounded-xl p-4">
+        <p class="text-lg font-medium text-gray-700 mb-2 flex items-center gap-2"><i class="bx bx-qrcode text-2xl text-amber-500"></i> ตัวอย่าง QR Code</p>
+        <div class="flex items-center gap-4">
+          <canvas id="eq-qr-preview" style="width:100px;height:100px;border-radius:8px;border:2px solid #E5E7EB"></canvas>
+          <div class="text-lg text-gray-500">QR Code จะถูก generate จากรหัสอุปกรณ์ที่กรอก กดปุ่มด้านล่างเพื่ออัปเดต</div>
+        </div>
+        <button type="button" onclick="previewQR()" class="mt-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-lg hover:bg-amber-200 flex items-center gap-1"><i class="bx bx-refresh"></i> อัปเดต QR Preview</button>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="closeEquipmentModal()" class="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50">ยกเลิก</button>
+        <button type="submit" class="flex-1 py-3 bg-amber-500 text-white font-medium rounded-xl hover:bg-amber-600 flex items-center justify-center gap-2"><i class="bx bx-save"></i> บันทึก</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- QR View Modal (single equipment) -->
+<div id="qr-view-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print">
+  <div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-sm mx-4 animate-fade-in text-center">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-2xl font-bold text-gray-800">QR Code อุปกรณ์</h3>
+      <button onclick="closeQrViewModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">✕</button>
+    </div>
+    <div id="qr-view-card" class="bg-white border-2 border-gray-200 rounded-xl p-4 mx-auto" style="max-width:280px">
+      <canvas id="qr-view-canvas" style="width:200px;height:200px;margin:0 auto;display:block"></canvas>
+      <div class="mt-3">
+        <div id="qr-view-code" class="font-mono font-bold text-amber-600 text-2xl"></div>
+        <div id="qr-view-name" class="font-medium text-gray-800 text-lg mt-1"></div>
+        <div id="qr-view-location" class="text-gray-500 text-base mt-1"></div>
+      </div>
+    </div>
+    <p class="text-base text-gray-400 mt-3 mb-4">สแกนเพื่อแจ้งซ่อมอุปกรณ์นี้</p>
+    <div class="flex gap-2 justify-center">
+      <button onclick="printSingleQR()" class="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 text-lg flex items-center gap-2"><i class="bx bx-printer"></i> พิมพ์</button>
+      <button onclick="downloadSingleQR()" class="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 text-lg flex items-center gap-2"><i class="bx bx-download"></i> ดาวน์โหลด</button>
+      <button onclick="closeQrViewModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 text-lg">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR Bulk Print Modal -->
+<div id="qr-bulk-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print">
+  <div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-4xl mx-4 animate-fade-in max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-2xl font-bold text-gray-800">พิมพ์ QR Code ทั้งหมด</h3>
+      <button onclick="closeQRBulkModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">✕</button>
+    </div>
+    <div id="qr-bulk-content" class="qr-label-wrap"></div>
+    <div class="flex gap-3 mt-5 justify-end">
+      <button onclick="closeQRBulkModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 text-lg">ปิด</button>
+      <button onclick="printBulkQR()" class="px-4 py-2 bg-green-500 text-white rounded-xl hover:bg-green-600 text-lg flex items-center gap-2"><i class="bx bx-printer"></i> พิมพ์ทั้งหมด</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Equipment Modal -->
+<div id="delete-eq-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print">
+  <div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-md mx-4 animate-fade-in">
+    <div class="text-center mb-5"><div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3"><i class="bx bx-error-circle text-3xl text-red-500"></i></div><h3 class="text-2xl font-bold text-gray-800">ยืนยันการลบ</h3><p class="text-gray-500 text-lg mt-1">ต้องการลบอุปกรณ์ <strong id="delete-eq-name" class="text-red-600"></strong> หรือไม่?</p></div>
+    <input type="hidden" id="delete-eq-code">
+    <div class="flex gap-3"><button onclick="closeDeleteEqModal()" class="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50">ยกเลิก</button><button onclick="confirmDeleteEquipment()" class="flex-1 py-3 bg-red-500 text-white font-medium rounded-xl hover:bg-red-600">ลบ</button></div>
+  </div>
+</div>
+
+<!-- Assign Modal -->
+<div id="assign-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print"><div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-md mx-4 animate-fade-in"><h3 class="text-2xl font-bold text-gray-800 mb-4">มอบหมายช่าง</h3><input type="hidden" id="assign-ticket-id"><label class="block text-lg font-medium text-gray-700 mb-2">เลือกช่าง</label><select id="assign-technician" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 mb-4"><option value="">-- เลือกช่าง --</option><option value="ช่างสมชาย">ช่างสมชาย</option><option value="ช่างวิทยา">ช่างวิทยา</option><option value="ช่างประเสริฐ">ช่างประเสริฐ</option></select><div class="flex gap-3"><button onclick="closeAssignModal()" class="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50">ยกเลิก</button><button onclick="assignTechnician()" class="flex-1 py-3 bg-blue-500 text-white font-medium rounded-xl hover:bg-blue-600">มอบหมาย</button></div></div></div>
+
+<!-- Status Modal -->
+<div id="status-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print"><div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-md mx-4 animate-fade-in"><h3 class="text-2xl font-bold text-gray-800 mb-4">เปลี่ยนสถานะ</h3><input type="hidden" id="status-ticket-id"><div class="space-y-3 mb-4"><label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50"><input type="radio" name="new-status" value="pending" class="w-5 h-5"><span class="status-pending px-3 py-1 rounded-full text-lg">รอรับงาน</span></label><label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50"><input type="radio" name="new-status" value="in-progress" class="w-5 h-5"><span class="status-in-progress px-3 py-1 rounded-full text-lg">กำลังดำเนินการ</span></label><label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50"><input type="radio" name="new-status" value="completed" class="w-5 h-5"><span class="status-completed px-3 py-1 rounded-full text-lg">เสร็จสิ้น</span></label></div><div class="flex gap-3"><button onclick="closeStatusModal()" class="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50">ยกเลิก</button><button onclick="changeStatus()" class="flex-1 py-3 bg-green-500 text-white font-medium rounded-xl hover:bg-green-600">บันทึก</button></div></div></div>
+
+<!-- Delete Ticket Modal -->
+<div id="delete-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print"><div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-md mx-4 animate-fade-in"><div class="text-center mb-6"><div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><i class="bx bx-error-circle text-3xl text-red-500"></i></div><h3 class="text-2xl font-bold text-gray-800">ยืนยันการลบ</h3><p class="text-gray-500 text-lg mt-1">คุณต้องการลบรายการนี้หรือไม่?</p></div><input type="hidden" id="delete-ticket-id"><div class="flex gap-3"><button onclick="closeDeleteModal()" class="flex-1 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50">ยกเลิก</button><button onclick="confirmDelete()" class="flex-1 py-3 bg-red-500 text-white font-medium rounded-xl hover:bg-red-600">ลบ</button></div></div></div>
+
+<!-- Image Modal -->
+<div id="image-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print"><div class="bg-white rounded-2xl card-shadow p-4 w-full max-w-2xl mx-4 animate-fade-in"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-gray-800">รูปภาพประกอบ</h3><button onclick="closeImageModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">✕</button></div><div class="flex justify-center"><img id="modal-image" src="" alt="" class="max-w-full max-h-[70vh] rounded-xl object-contain"></div></div></div>
+
+<!-- Guide Modal -->
+<div id="guide-modal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center z-50 no-print"><div class="bg-white rounded-2xl card-shadow p-6 w-full max-w-2xl mx-4 animate-fade-in overflow-y-auto max-h-[90vh]"><div class="flex justify-between items-center mb-4"><h3 class="text-3xl font-bold text-gray-800">คู่มือการใช้งาน</h3><button onclick="closeGuideModal()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">✕</button></div><div class="space-y-4"><div class="bg-blue-50 p-4 rounded-lg"><h4 class="font-bold text-blue-800 mb-2"><i class="bx bx-user"></i> สำหรับผู้ใช้ทั่วไป</h4><ol class="list-decimal pl-5 space-y-2 text-lg"><li>กรอกข้อมูลให้ครบถ้วนแล้วกด "ส่งคำขอ"</li><li>สแกน QR Code ที่ติดอยู่กับอุปกรณ์เพื่อกรอกข้อมูลอัตโนมัติ</li><li>แนบรูปภาพ JPG/PNG/GIF ไม่เกิน 2MB</li><li>ติดตามสถานะได้ที่แท็บ "ประวัติ"</li></ol></div><div class="bg-amber-50 p-4 rounded-lg"><h4 class="font-bold text-amber-800 mb-2"><i class="bx bx-cog"></i> สำหรับแอดมิน</h4><ol class="list-decimal pl-5 space-y-2 text-lg"><li>เข้าสู่ระบบด้วย Username และ Password</li><li>จัดการฐานข้อมูลอุปกรณ์ ได้ที่เมนู "ฐานข้อมูลอุปกรณ์"</li><li>สร้าง QR Code แปะที่อุปกรณ์เพื่อให้ผู้ใช้สแกนแจ้งซ่อม</li><li>มอบหมายช่าง / เปลี่ยนสถานะงานได้ที่ "รายการแจ้งซ่อม"</li></ol></div></div><div class="mt-4 text-right"><button onclick="closeGuideModal()" class="px-4 py-2 bg-gray-500 text-white rounded-xl hover:bg-gray-600 text-lg">ปิด</button></div></div></div>
+
+
+
+<footer class="no-print">พัฒนาโดย งานโสตทัศนูปกรณ์และประชาสัมพันธ์ @Kru Wanchana | <a href="mailto:wanchana.pak@tuppt.ac.th">ติดต่อแอดมิน</a></footer>
+</div>
+
+<script>
+// ===== STATE =====
+var allTickets=[], filteredTickets=[], allEquipment=[], filteredEquipment=[];
+var isAdminLoggedIn=false, selectedImageData='';
+var ITEMS_PER_PAGE=5, ITEMS_PER_PAGE_ADMIN=7;
+var historyCurrentPage=1, adminCurrentPage=1;
+var cameraStream=null, qrScannerStream=null, qrCodeDetector=null;
+var chartByStatus=null, chartByUrgency=null, chartByDate=null;
+var currentQrEquipment=null;
+
+// ===== LOADING =====
+function showLoading(msg) {
+  msg=msg||'กำลังโหลด...';
+  var ex=document.getElementById('modal-loading-overlay');if(ex)ex.remove();
+  var ov=document.createElement('div');ov.id='modal-loading-overlay';
+  ov.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999999;';
+  var box=document.createElement('div');box.style.cssText='background:white;padding:2rem 3rem;border-radius:1.5rem;box-shadow:0 25px 50px rgba(0,0,0,0.3);display:flex;flex-direction:column;align-items:center;gap:16px;min-width:280px;';
+  var sp=document.createElement('div');sp.style.cssText='width:48px;height:48px;border:5px solid #FEF3C7;border-top-color:#F59E0B;border-radius:50%;animation:modalSpinAnimation .8s linear infinite;';
+  var tx=document.createElement('p');tx.style.cssText='font-family:Prompt,sans-serif;font-size:18px;font-weight:600;color:#92400E;margin:0;';tx.textContent=msg;
+  box.appendChild(sp);box.appendChild(tx);ov.appendChild(box);document.body.appendChild(ov);
+}
+function hideLoading(){var ov=document.getElementById('modal-loading-overlay');if(ov)ov.remove();}
+
+// CSS for spinner in head
+(function(){var s=document.createElement('style');s.textContent='@keyframes modalSpinAnimation{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';document.head.appendChild(s);})();
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',function(){
+  setupEventListeners();setupImageUpload();loadAllTickets();initAdminDashboardUI();
+});
+
+function setupEventListeners(){
+  document.getElementById('repair-form').addEventListener('submit',handleFormSubmit);
+  document.getElementById('login-form').addEventListener('submit',handleLogin);
+  document.getElementById('equipment-form').addEventListener('submit',handleEquipmentFormSubmit);
+}
+
+// ===== DATA =====
+function loadAllTickets(){
+  showLoading('กำลังโหลดข้อมูล...');
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();if(r.success){allTickets=r.data||[];applyFilters();renderRequesterTickets();renderHistoryTickets();updateKPIs();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');})
+    .withFailureHandler(function(e){hideLoading();showToast('เกิดข้อผิดพลาด: '+e.message,'error');})
+    .getAllTickets();
+}
+
+function loadAllEquipment(){
+  showLoading('กำลังโหลดข้อมูลอุปกรณ์...');
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();if(r.success){allEquipment=r.data||[];filteredEquipment=[...allEquipment];renderEquipmentList();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');})
+    .withFailureHandler(function(e){hideLoading();showToast('เกิดข้อผิดพลาด: '+e.message,'error');})
+    .getAllEquipment();
+}
+
+// ===== IMAGE =====
+function setupImageUpload(){
+  var uz=document.getElementById('upload-zone'),inp=document.getElementById('image-input'),rb=document.getElementById('remove-image-btn');
+  uz.addEventListener('click',function(e){if(e.target.id!=='remove-image-btn')inp.click();});
+  inp.addEventListener('change',function(e){var f=e.target.files[0];if(f)handleImageFile(f);});
+  uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('drag-over');});
+  uz.addEventListener('dragleave',function(){uz.classList.remove('drag-over');});
+  uz.addEventListener('drop',function(e){e.preventDefault();uz.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))handleImageFile(f);});
+  rb.addEventListener('click',function(e){e.stopPropagation();clearImagePreview();});
+}
+function handleImageFile(file){
+  if(file.size>2*1024*1024){showToast('ไฟล์ใหญ่เกิน 2MB','error');return;}
+  if(!['image/jpeg','image/png','image/gif'].includes(file.type)){showToast('รองรับ JPG, PNG, GIF เท่านั้น','error');return;}
+  var r=new FileReader();r.onload=function(e){selectedImageData=e.target.result;showImagePreview(selectedImageData);};r.readAsDataURL(file);
+}
+function showImagePreview(d){document.getElementById('upload-placeholder').classList.add('hidden');document.getElementById('image-preview-container').classList.remove('hidden');document.getElementById('preview-image').src=d;}
+function clearImagePreview(){document.getElementById('upload-placeholder').classList.remove('hidden');document.getElementById('image-preview-container').classList.add('hidden');document.getElementById('preview-image').src='';document.getElementById('image-input').value='';selectedImageData='';}
+
+// ===== TABS =====
+function switchTab(tab){
+  var header=document.getElementById('main-header');
+  ['requester','history','admin'].forEach(function(t){document.getElementById('tab-'+t).classList.remove('active');document.getElementById(t+'-page').classList.add('hidden');});
+  if(tab==='admin'){
+    if(!isAdminLoggedIn){document.getElementById('login-modal').classList.remove('hidden');return;}
+    if(header)header.classList.add('hidden');
+    document.getElementById('admin-page').classList.remove('hidden');document.getElementById('tab-admin').classList.add('active');
+  }else{
+    if(header)header.classList.remove('hidden');
+    document.getElementById(tab+'-page').classList.remove('hidden');document.getElementById('tab-'+tab).classList.add('active');
+  }
+}
+
+// ===== LOGIN =====
+function handleLogin(e){
+  e.preventDefault();
+  var u=document.getElementById('login-user').value,p=document.getElementById('login-pass').value;
+  showLoading('กำลังตรวจสอบสิทธิ์...');
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();if(r.success){isAdminLoggedIn=true;closeLoginModal();switchTab('admin');}else document.getElementById('login-error').classList.remove('hidden');})
+    .withFailureHandler(function(e){hideLoading();showToast('เกิดข้อผิดพลาด','error');})
+    .verifyAdminLogin(u,p);
+}
+function closeLoginModal(){document.getElementById('login-modal').classList.add('hidden');document.getElementById('login-user').value='';document.getElementById('login-pass').value='';document.getElementById('login-error').classList.add('hidden');}
+function logoutAdmin(){isAdminLoggedIn=false;switchTab('requester');}
+
+// ===== FORM SUBMIT =====
+function handleFormSubmit(e){
+  e.preventDefault();
+  var form=document.getElementById('repair-form'),btn=document.getElementById('submit-btn'),suc=document.getElementById('form-success');
+  var urg=document.querySelector('input[name="urgency"]:checked');
+  var data={requester_name:document.getElementById('requester-name').value,department:document.getElementById('department').value,equipment_category:document.getElementById('equipment-category').value,equipment:document.getElementById('equipment').value,description:document.getElementById('description').value,urgency:urg?urg.value:'medium',image_data:selectedImageData||''};
+  btn.disabled=true;showLoading('กำลังส่งคำขอแจ้งซ่อม...');
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();btn.disabled=false;if(r.success){document.getElementById('success-ticket-id').textContent=r.ticket_id;form.classList.add('hidden');suc.classList.remove('hidden');setTimeout(function(){suc.classList.add('hidden');form.classList.remove('hidden');form.reset();clearImagePreview();loadAllTickets();},3500);}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');})
+    .withFailureHandler(function(err){hideLoading();btn.disabled=false;showToast('เกิดข้อผิดพลาด: '+err.message,'error');})
+    .createTicket(data);
+}
+
+// ===== RENDER TICKETS =====
+function renderRequesterTickets(){
+  var c=document.getElementById('requester-tickets');
+  if(!allTickets.length){c.innerHTML='<div class="text-center text-gray-500 py-8"><i class="bx bx-mailbox text-4xl"></i><p class="mt-2">ยังไม่มีรายการแจ้งซ่อม</p></div>';return;}
+  var s=[...allTickets].sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);});
+  c.innerHTML=s.map(function(t){var img=t.image_url?'<div class="mt-2"><img src="'+t.image_url+'" class="w-20 h-20 object-cover rounded-lg cursor-pointer" onclick="openImageModal(\''+t.image_url+'\')"></div>':'';return '<div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all"><div class="flex justify-between items-start mb-2"><span class="font-mono text-base font-bold text-gray-600">'+t.ticket_id+'</span><span class="px-2 py-1 rounded-full text-base '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></div><p class="font-medium text-gray-800 text-lg">'+escapeHtml(t.equipment)+'</p><p class="text-base text-gray-500 mt-1">'+escapeHtml(t.description)+'</p>'+img+'<div class="flex justify-between items-center mt-3 text-base text-gray-400"><span>'+formatDate(t.created_at)+'</span><span class="px-2 py-0.5 rounded-full '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></div></div>';}).join('');
+  // Auto-scroll to bottom so latest ticket aligns with send button
+  setTimeout(function(){c.scrollTop=c.scrollHeight;},80);
+}
+
+function renderHistoryTickets(){
+  var c=document.getElementById('history-tickets'),pg=document.getElementById('history-pagination');
+  var sf=document.getElementById('history-status').value,uf=document.getElementById('history-urgency').value;
+  var fil=allTickets.filter(function(t){if(sf&&t.status!==sf)return false;if(uf&&t.urgency!==uf)return false;return true;}).sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);});
+  if(!fil.length){c.innerHTML='<div class="text-center text-gray-500 py-8"><i class="bx bx-mailbox text-4xl"></i><p class="mt-2">ไม่พบประวัติ</p></div>';pg.classList.add('hidden');return;}
+  var tp=Math.ceil(fil.length/ITEMS_PER_PAGE);if(historyCurrentPage>tp)historyCurrentPage=tp;
+  var st=(historyCurrentPage-1)*ITEMS_PER_PAGE,pg2=fil.slice(st,st+ITEMS_PER_PAGE);
+  c.innerHTML=pg2.map(function(t){var img=t.image_url?'<div class="mt-2"><img src="'+t.image_url+'" class="w-20 h-20 object-cover rounded-lg cursor-pointer" onclick="openImageModal(\''+t.image_url+'\')"></div>':'';return '<div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all"><div class="flex justify-between items-start mb-2"><span class="font-mono text-base font-bold text-gray-600">'+t.ticket_id+'</span><span class="px-2 py-1 rounded-full text-base '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></div><p class="font-medium text-gray-800 text-lg">'+escapeHtml(t.equipment)+'</p><p class="text-base text-gray-500 mt-1">'+escapeHtml(t.description)+'</p>'+img+'<div class="flex justify-between items-center mt-3 text-base text-gray-400"><span>'+formatDate(t.created_at)+'</span><span class="px-2 py-0.5 rounded-full '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></div><div class="mt-2 text-base text-gray-600"><span class="font-medium">ผู้แจ้ง:</span> '+escapeHtml(t.requester_name)+' | <span class="font-medium">แผนก:</span> '+escapeHtml(t.department)+(t.assigned_to?' | <span class="font-medium">ช่าง:</span> '+escapeHtml(t.assigned_to):'')+'</div></div>';}).join('');
+  c.innerHTML=pg2.map(function(t){var img=t.image_url?'<div class="mt-2"><img src="'+t.image_url+'" class="w-20 h-20 object-cover rounded-lg cursor-pointer" onclick="openImageModal(\''+t.image_url+'\')"></div>':'';return '<div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all"><div class="flex justify-between items-start mb-2"><span class="font-mono text-base font-bold text-gray-600">'+t.ticket_id+'</span><span class="px-2 py-1 rounded-full text-base '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></div><p class="font-medium text-gray-800 text-lg">'+escapeHtml(t.equipment)+'</p><p class="text-base text-gray-500 mt-1">'+escapeHtml(t.description)+'</p>'+img+'<div class="flex justify-between items-center mt-3 text-base text-gray-400"><span>'+formatDate(t.created_at)+'</span><span class="px-2 py-0.5 rounded-full '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></div><div class="mt-2 text-base text-gray-600"><span class="font-medium">ผู้แจ้ง:</span> '+escapeHtml(t.requester_name)+' | <span class="font-medium">แผนก:</span> '+escapeHtml(t.department)+(t.assigned_to?' | <span class="font-medium">ช่าง:</span> '+escapeHtml(t.assigned_to):'')+'</div></div>';}).join('');
+  if(tp>1){pg.classList.remove('hidden');document.getElementById('history-current-page').textContent=historyCurrentPage;document.getElementById('history-total-pages').textContent=tp;document.getElementById('history-prev-btn').disabled=historyCurrentPage===1;document.getElementById('history-next-btn').disabled=historyCurrentPage===tp;}else pg.classList.add('hidden');
+}
+
+function nextHistoryPage(){historyCurrentPage++;renderHistoryTickets();}
+function previousHistoryPage(){if(historyCurrentPage>1){historyCurrentPage--;renderHistoryTickets();}}
+function nextAdminPage(){adminCurrentPage++;renderAdminTable();}
+function previousAdminPage(){if(adminCurrentPage>1){adminCurrentPage--;renderAdminTable();}}
+
+function renderAdminTable(){
+  var tb=document.getElementById('admin-table-body'),pb=document.getElementById('admin-pagination');
+  if(!filteredTickets.length){tb.innerHTML='<tr><td colspan="9" class="px-4 py-8 text-center text-gray-500"><i class="bx bx-mailbox text-4xl"></i><p>ไม่พบรายการ</p></td></tr>';if(pb)pb.classList.add('hidden');return;}
+  var uo={high:0,medium:1,low:2};
+  var s=[...filteredTickets].sort(function(a,b){return uo[a.urgency]-uo[b.urgency];});
+  var tp=Math.ceil(s.length/ITEMS_PER_PAGE_ADMIN);if(adminCurrentPage>tp)adminCurrentPage=tp;
+  var st=(adminCurrentPage-1)*ITEMS_PER_PAGE_ADMIN,pg=s.slice(st,st+ITEMS_PER_PAGE_ADMIN);
+  tb.innerHTML=pg.map(function(t){var ib=t.image_url?'<button onclick="openImageModal(\''+t.image_url+'\')" class="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-base hover:bg-purple-200"><i class="bx bx-image"></i> ดูรูป</button>':'<span class="text-gray-400 text-base">ไม่มี</span>';return '<tr class="border-b border-gray-100 hover:bg-gray-50"><td class="px-4 py-3 font-mono text-base font-bold">'+t.ticket_id+'</td><td class="px-4 py-3 text-base">'+formatDate(t.created_at)+'</td><td class="px-4 py-3"><div class="text-base font-medium">'+escapeHtml(t.requester_name)+'</div><div class="text-base text-gray-500">'+escapeHtml(t.department)+'</div></td><td class="px-4 py-3"><div class="text-base font-medium">'+escapeHtml(t.equipment)+'</div><div class="text-base text-gray-500 truncate max-w-xs">'+escapeHtml(t.description)+'</div></td><td class="px-4 py-3">'+ib+'</td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-base '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-base '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></td><td class="px-4 py-3 text-base">'+escapeHtml(t.assigned_to||'-')+'</td><td class="px-4 py-3 no-print"><div class="flex gap-1"><button onclick="openAssignModal(\''+t.__backendId+'\')" class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-base hover:bg-blue-200" title="มอบหมาย"><i class="bx bx-user"></i></button><button onclick="openStatusModal(\''+t.__backendId+'\',\''+t.status+'\')" class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-base hover:bg-green-200" title="เปลี่ยนสถานะ"><i class="bx bx-refresh"></i></button><button onclick="openDeleteModal(\''+t.__backendId+'\')" class="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-base hover:bg-red-200" title="ลบ"><i class="bx bx-trash"></i></button></div></td></tr>';}).join('');
+  tb.innerHTML=pg.map(function(t){var ib=t.image_url?'<button onclick="openImageModal(\''+t.image_url+'\')" class="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-base hover:bg-purple-200"><i class="bx bx-image"></i> ดูรูป</button>':'<span class="text-gray-400 text-base">ไม่มี</span>';return '<tr class="border-b border-gray-100 hover:bg-gray-50"><td class="px-4 py-3 font-mono text-base font-bold">'+t.ticket_id+'</td><td class="px-4 py-3 text-base">'+formatDate(t.created_at)+'</td><td class="px-4 py-3"><div class="text-base font-medium">'+escapeHtml(t.requester_name)+'</div><div class="text-base text-gray-500">'+escapeHtml(t.department)+'</div></td><td class="px-4 py-3"><div class="text-base font-medium">'+escapeHtml(t.equipment)+'</div><div class="text-base text-gray-500 truncate max-w-xs">'+escapeHtml(t.description)+'</div></td><td class="px-4 py-3">'+ib+'</td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-base '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></td><td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-base '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></td><td class="px-4 py-3 text-base">'+escapeHtml(t.assigned_to||'-')+'</td><td class="px-4 py-3 no-print"><div class="flex gap-1"><button onclick="openAssignModal(\''+t.__backendId+'\')" class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-base hover:bg-blue-200" title="มอบหมาย"><i class="bx bx-user"></i></button><button onclick="openStatusModal(\''+t.__backendId+'\',\''+t.status+'\')" class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-base hover:bg-green-200" title="เปลี่ยนสถานะ"><i class="bx bx-refresh"></i></button><button onclick="openDeleteModal(\''+t.__backendId+'\')" class="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-base hover:bg-red-200" title="ลบ"><i class="bx bx-trash"></i></button></div></td></tr>';}).join('');
+  if(pb&&tp>1){pb.classList.remove('hidden');document.getElementById('admin-current-page').textContent=adminCurrentPage;document.getElementById('admin-total-pages').textContent=tp;document.getElementById('admin-prev-btn').disabled=adminCurrentPage===1;document.getElementById('admin-next-btn').disabled=adminCurrentPage===tp;}else if(pb)pb.classList.add('hidden');
+}
+
+// ===== EQUIPMENT LIST =====
+var CAT_ICON={'computer':'bx-desktop','printer':'bx-printer','projector':'bx-slideshow','network':'bx-wifi','audio-video':'bx-volume-full','other':'bx-package'};
+var CAT_NAME={'computer':'คอมพิวเตอร์','printer':'เครื่องพิมพ์','projector':'โปรเจคเตอร์','network':'อุปกรณ์เครือข่าย','audio-video':'เสียงและวิดีโอ','other':'อื่นๆ'};
+var CAT_COLOR={'computer':'bg-blue-100 text-blue-700','printer':'bg-purple-100 text-purple-700','projector':'bg-orange-100 text-orange-700','network':'bg-green-100 text-green-700','audio-video':'bg-pink-100 text-pink-700','other':'bg-gray-100 text-gray-700'};
+
+function renderEquipmentList(){
+  var c=document.getElementById('equipment-list');
+  c.innerHTML='';
+
+  if(!filteredEquipment.length){
+    c.innerHTML='<div class="col-span-full text-center text-gray-400 py-12"><i class="bx bx-package text-5xl"></i><p class="mt-2">ไม่พบข้อมูลอุปกรณ์</p><p class="text-lg mt-1">กดปุ่ม "เพิ่มอุปกรณ์" เพื่อเริ่มต้น</p></div>';
+    return;
+  }
+
+  filteredEquipment.forEach(function(eq){
+    var icon=CAT_ICON[eq.category]||'bx-package';
+    var catName=CAT_NAME[eq.category]||eq.category||'ไม่ระบุ';
+    var catColor=CAT_COLOR[eq.category]||'bg-gray-100 text-gray-700';
+    var code=eq.equipment_code;
+
+    // ---- card wrapper ----
+    var card=document.createElement('div');
+    card.className='eq-card';
+
+    // ---- header row ----
+    var header=document.createElement('div');
+    header.className='flex items-start justify-between gap-2';
+
+    var iconWrap=document.createElement('div');
+    iconWrap.className='flex items-center gap-2 min-w-0';
+    iconWrap.innerHTML='<div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0"><i class="bx '+icon+' text-xl text-amber-600"></i></div>';
+    var nameWrap=document.createElement('div');nameWrap.className='min-w-0';
+    var codeEl=document.createElement('div');codeEl.className='font-mono text-xs font-bold text-amber-600';codeEl.textContent=eq.equipment_code;
+    var nameEl=document.createElement('div');nameEl.className='font-medium text-gray-800 text-sm truncate';nameEl.textContent=eq.equipment_name;
+    nameWrap.appendChild(codeEl);nameWrap.appendChild(nameEl);
+    iconWrap.appendChild(nameWrap);
+
+    var badge=document.createElement('span');
+    badge.className='px-2 py-0.5 rounded-full text-xs shrink-0 '+catColor;
+    badge.textContent=catName;
+
+    header.appendChild(iconWrap);header.appendChild(badge);
+    card.appendChild(header);
+
+    // ---- location ----
+    var loc=document.createElement('div');
+    loc.className='mt-2 text-xs text-gray-500 flex items-center gap-1';
+    loc.innerHTML='<i class="bx bx-map-pin"></i> ';
+    loc.appendChild(document.createTextNode(eq.location||'ไม่ระบุสถานที่'));
+    card.appendChild(loc);
+
+    // ---- note ----
+    if(eq.note){
+      var noteEl=document.createElement('div');
+      noteEl.className='mt-1 text-xs text-gray-400 truncate';
+      noteEl.textContent=eq.note;
+      card.appendChild(noteEl);
+    }
+
+    // ---- QR mini preview ----
+    var qrWrap=document.createElement('div');
+    qrWrap.className='mt-3 flex justify-center';
+    var miniCanvas=document.createElement('canvas');
+    // Let QRCode engine set canvas.width/height attributes directly
+    // Only use CSS for visual styling AFTER QR is drawn
+    miniCanvas.style.cssText='border-radius:8px;border:1px solid #E5E7EB;cursor:pointer;display:block;max-width:100%;';
+    miniCanvas.title='คลิกเพื่อดู QR ขนาดเต็ม';
+    qrWrap.appendChild(miniCanvas);
+    card.appendChild(qrWrap);
+
+    // ---- buttons ----
+    var btnRow=document.createElement('div');
+    btnRow.className='flex gap-2 mt-3';
+
+    var btnQR=document.createElement('button');
+    btnQR.className='flex-1 px-2 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-xs hover:bg-amber-200 flex items-center justify-center gap-1';
+    btnQR.innerHTML='<i class="bx bx-qrcode"></i> QR Code';
+    btnQR.addEventListener('click',function(){openQrViewModal(code);});
+
+    var btnEdit=document.createElement('button');
+    btnEdit.className='px-2 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs hover:bg-blue-200 flex items-center gap-1';
+    btnEdit.innerHTML='<i class="bx bx-edit"></i> แก้ไข';
+    btnEdit.addEventListener('click',function(){openEquipmentModal(code);});
+
+    var btnDel=document.createElement('button');
+    btnDel.className='px-2 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs hover:bg-red-200 flex items-center gap-1';
+    btnDel.innerHTML='<i class="bx bx-trash"></i>';
+    btnDel.title='ลบอุปกรณ์';
+    btnDel.addEventListener('click',function(){openDeleteEqModal(code,eq.equipment_name);});
+
+    btnRow.appendChild(btnQR);btnRow.appendChild(btnEdit);btnRow.appendChild(btnDel);
+    card.appendChild(btnRow);
+    c.appendChild(card);
+
+    // ---- generate QR into mini canvas after appended to DOM ----
+    // canvas.width/height set by generateQRToCanvas, then CSS-scale to display size
+    generateQRToCanvas(miniCanvas,code,120);
+    miniCanvas.style.width='90px';
+    miniCanvas.style.height='90px';
+    miniCanvas.addEventListener('click',function(){openQrViewModal(code);});
+  });
+}
+
+function filterEquipmentList(){
+  var q=document.getElementById('eq-search').value.toLowerCase();
+  filteredEquipment=allEquipment.filter(function(eq){
+    return !q||(eq.equipment_code||'').toLowerCase().includes(q)||(eq.equipment_name||'').toLowerCase().includes(q)||(eq.location||'').toLowerCase().includes(q)||(eq.category||'').toLowerCase().includes(q);
+  });
+  renderEquipmentList();
+}
+
+// ===== EQUIPMENT MODAL =====
+function openEquipmentModal(code){
+  var modal=document.getElementById('equipment-modal');
+  var title=document.getElementById('equipment-modal-title');
+  document.getElementById('equipment-form').reset();
+  document.getElementById('eq-original-code').value='';
+  // clear QR preview
+  var canvas=document.getElementById('eq-qr-preview');
+  var ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(code){
+    var eq=allEquipment.find(function(e){return e.equipment_code===code;});
+    if(!eq){showToast('ไม่พบข้อมูลอุปกรณ์','error');return;}
+    title.textContent='แก้ไขอุปกรณ์';
+    document.getElementById('eq-original-code').value=eq.equipment_code;
+    document.getElementById('eq-code').value=eq.equipment_code;
+    document.getElementById('eq-name').value=eq.equipment_name;
+    document.getElementById('eq-location').value=eq.location||'';
+    document.getElementById('eq-category').value=eq.category||'';
+    document.getElementById('eq-note').value=eq.note||'';
+    previewQR();
+  }else{
+    title.textContent='เพิ่มอุปกรณ์ใหม่';
+    // Auto-suggest next code
+    var maxNum=0;
+    allEquipment.forEach(function(e){var m=(e.equipment_code||'').match(/(\d+)$/);if(m)maxNum=Math.max(maxNum,parseInt(m[1]));});
+    document.getElementById('eq-code').value='EQ-'+(maxNum+1 < 10?'00':'')+(maxNum+1 < 100?'0':'')+(maxNum+1);
+  }
+  modal.classList.remove('hidden');
+}
+
+function closeEquipmentModal(){document.getElementById('equipment-modal').classList.add('hidden');}
+
+function handleEquipmentFormSubmit(e){
+  e.preventDefault();
+  var originalCode=document.getElementById('eq-original-code').value;
+  var data={
+    equipment_code:document.getElementById('eq-code').value.trim(),
+    equipment_name:document.getElementById('eq-name').value.trim(),
+    location:document.getElementById('eq-location').value.trim(),
+    category:document.getElementById('eq-category').value,
+    note:document.getElementById('eq-note').value.trim()
+  };
+  closeEquipmentModal();
+  showLoading(originalCode?'กำลังแก้ไขข้อมูล...':'กำลังบันทึกข้อมูล...');
+  var fn=originalCode?'updateEquipment':'createEquipment';
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();if(r.success){showToast(originalCode?'แก้ไขข้อมูลสำเร็จ':'เพิ่มอุปกรณ์สำเร็จ','success');loadAllEquipment();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');})
+    .withFailureHandler(function(err){hideLoading();showToast('เกิดข้อผิดพลาด: '+err.message,'error');})
+    [fn](data);
+}
+
+// ===== DELETE EQUIPMENT =====
+function openDeleteEqModal(code,name){
+  document.getElementById('delete-eq-code').value=code;
+  document.getElementById('delete-eq-name').textContent=name;
+  document.getElementById('delete-eq-modal').classList.remove('hidden');
+}
+function closeDeleteEqModal(){document.getElementById('delete-eq-modal').classList.add('hidden');}
+function confirmDeleteEquipment(){
+  var code=document.getElementById('delete-eq-code').value;
+  closeDeleteEqModal();showLoading('กำลังลบข้อมูล...');
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();if(r.success){showToast('ลบอุปกรณ์สำเร็จ','success');loadAllEquipment();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');})
+    .withFailureHandler(function(err){hideLoading();showToast('เกิดข้อผิดพลาด: '+err.message,'error');})
+    .deleteEquipment(code);
+}
+
+// ===== SAMPLE EQUIPMENT =====
+function addSampleEquipment(code,name,location,category,note){
+  var exists=allEquipment.find(function(e){return e.equipment_code===code;});
+  if(exists){showToast('รหัส '+code+' มีอยู่แล้วในระบบ','error');return;}
+  showLoading('กำลังเพิ่มข้อมูลตัวอย่าง...');
+  google.script.run
+    .withSuccessHandler(function(r){hideLoading();if(r.success){showToast('เพิ่ม '+name+' สำเร็จ','success');loadAllEquipment();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');})
+    .withFailureHandler(function(err){hideLoading();showToast('เกิดข้อผิดพลาด: '+err.message,'error');})
+    .createEquipment({equipment_code:code,equipment_name:name,location:location,category:category,note:note});
+}
+
+// ===== QR CODE FUNCTIONS =====
+function generateQRToCanvas(canvas,text,size){
+  size=size||200;
+  try{
+    QRCode.toCanvas(canvas,text,{width:size,margin:2,color:{dark:'#000000',light:'#ffffff'}},function(err){
+      if(err){console.error('QR:',err);}
+    });
+  }catch(e){
+    console.error('QR Exception:',e);
+    canvas.width=size;canvas.height=size;
+    var ctx=canvas.getContext('2d');
+    ctx.fillStyle='#FEF3C7';ctx.fillRect(0,0,size,size);
+    ctx.fillStyle='#D97706';ctx.textAlign='center';ctx.baseLine='middle';
+    ctx.font='bold '+(Math.floor(size/8))+'px Prompt,sans-serif';
+    ctx.fillText('QR',size/2,size/2+4);
+  }
+}
+
+function previewQR(){
+  var code=document.getElementById('eq-code').value.trim();
+  if(!code){showToast('กรุณากรอกรหัสอุปกรณ์ก่อน','error');return;}
+  var canvas=document.getElementById('eq-qr-preview');
+  generateQRToCanvas(canvas,code,120);
+}
+
+function openQrViewModal(code){
+  var eq=allEquipment.find(function(e){return e.equipment_code===code;});
+  if(!eq){showToast('ไม่พบข้อมูลอุปกรณ์','error');return;}
+  currentQrEquipment=eq;
+  document.getElementById('qr-view-code').textContent=eq.equipment_code;
+  document.getElementById('qr-view-name').textContent=eq.equipment_name;
+  document.getElementById('qr-view-location').textContent=eq.location||'';
+  var canvas=document.getElementById('qr-view-canvas');
+  // Set canvas physical size first, QRCode engine will override width/height attributes
+  generateQRToCanvas(canvas,eq.equipment_code,220);
+  canvas.style.width='200px';canvas.style.height='200px';
+  document.getElementById('qr-view-modal').classList.remove('hidden');
+}
+function closeQrViewModal(){document.getElementById('qr-view-modal').classList.add('hidden');currentQrEquipment=null;}
+
+function printSingleQR(){
+  if(!currentQrEquipment)return;
+  // Regenerate fresh QR for print at higher resolution
+  var tmpCanvas=document.createElement('canvas');
+  generateQRToCanvas(tmpCanvas,currentQrEquipment.equipment_code,240);
+  var dataUrl=tmpCanvas.toDataURL('image/png');
+  var eq=currentQrEquipment;
+  var pw=window.open('','_blank');
+  pw.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'+
+    '@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap");'+
+    'body{font-family:Kanit,sans-serif;display:flex;justify-content:center;padding:20px}'+
+    '.card{border:2px solid #F59E0B;border-radius:12px;padding:20px;text-align:center;width:220px}'+
+    '.code{font-family:monospace;font-weight:700;color:#D97706;font-size:14px}'+
+    '.name{font-weight:600;font-size:13px;margin:4px 0}'+
+    '.loc{color:#888;font-size:11px}'+
+    '.hint{color:#aaa;font-size:10px;margin-top:8px}'+
+    '</style></head><body><div class="card">'+
+    '<img src="'+dataUrl+'" style="width:180px;height:180px">'+
+    '<div class="code">'+eq.equipment_code+'</div>'+
+    '<div class="name">'+eq.equipment_name+'</div>'+
+    '<div class="loc">'+( eq.location||'')+'</div>'+
+    '<div class="hint">สแกนเพื่อแจ้งซ่อม</div>'+
+    '</div><script>window.onload=function(){window.print();}<\/script></body></html>');
+  pw.document.close();
+}
+
+function downloadSingleQR(){
+  if(!currentQrEquipment)return;
+  var tmpCanvas=document.createElement('canvas');
+  generateQRToCanvas(tmpCanvas,currentQrEquipment.equipment_code,400);
+  var a=document.createElement('a');
+  a.href=tmpCanvas.toDataURL('image/png');
+  a.download='QR-'+currentQrEquipment.equipment_code+'.png';
+  a.click();
+}
+
+function openQRBulkModal(){
+  if(!allEquipment.length){showToast('ยังไม่มีข้อมูลอุปกรณ์','error');return;}
+  var container=document.getElementById('qr-bulk-content');
+  container.innerHTML='<div class="text-center py-4 text-gray-500 w-full">กำลังสร้าง QR Code...</div>';
+  document.getElementById('qr-bulk-modal').classList.remove('hidden');
+  setTimeout(function(){
+    container.innerHTML='';
+    allEquipment.forEach(function(eq){
+      var div=document.createElement('div');
+      div.className='qr-label-item';div.style.minWidth='140px';
+
+      var canvas=document.createElement('canvas');
+      canvas.style.cssText='display:block;margin:0 auto;max-width:120px;max-height:120px;';
+
+      var codeDiv=document.createElement('div');
+      codeDiv.style.cssText='font-family:monospace;font-weight:700;color:#D97706;font-size:12px;margin-top:4px;';
+      codeDiv.textContent=eq.equipment_code||'';
+
+      var nameDiv=document.createElement('div');
+      nameDiv.style.cssText='font-size:11px;color:#374151;font-weight:600;';
+      nameDiv.textContent=eq.equipment_name||'';
+
+      var locDiv=document.createElement('div');
+      locDiv.style.cssText='font-size:10px;color:#9CA3AF;';
+      locDiv.textContent=eq.location||'';
+
+      div.appendChild(canvas);div.appendChild(codeDiv);div.appendChild(nameDiv);div.appendChild(locDiv);
+      container.appendChild(div);
+      // Generate QR then CSS-scale to display size
+      generateQRToCanvas(canvas,eq.equipment_code||'CODE',140);
+      canvas.style.width='120px';canvas.style.height='120px';
+    });
+  },150);
+}
+function closeQRBulkModal(){document.getElementById('qr-bulk-modal').classList.add('hidden');}
+
+function printBulkQR(){
+  var items=allEquipment;
+  if(!items.length){showToast('ไม่มีข้อมูลให้พิมพ์','error');return;}
+  // Generate fresh QR dataURLs directly (don't rely on canvas in modal)
+  var pw=window.open('','_blank');
+  var cards='';
+  items.forEach(function(eq){
+    var code=eq.equipment_code||'';
+    var name=eq.equipment_name||'';
+    var loc=eq.location||'';
+    if(!code)return;
+    // Generate QR to temp canvas
+    var tmpCanvas=document.createElement('canvas');
+    generateQRToCanvas(tmpCanvas,code,160);
+    var dataUrl=tmpCanvas.toDataURL('image/png');
+    cards+='<div class="card"><img src="'+dataUrl+'" style="width:140px;height:140px;display:block;margin:0 auto;"><div class="code">'+escapeHtmlPrint(code)+'</div><div class="name">'+escapeHtmlPrint(name)+'</div><div class="loc">'+escapeHtmlPrint(loc)+'</div><div class="hint">สแกนเพื่อแจ้งซ่อม</div></div>';
+  });
+  pw.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'+
+    '@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap");'+
+    '*{box-sizing:border-box}body{font-family:Kanit,sans-serif;padding:16px}'+
+    'h1{text-align:center;font-size:18px;margin-bottom:16px;color:#374151}'+
+    '.grid{display:flex;flex-wrap:wrap;gap:12px}'+
+    '.card{border:2px solid #F59E0B;border-radius:10px;padding:12px;text-align:center;width:160px;page-break-inside:avoid}'+
+    '.code{font-family:monospace;font-weight:700;color:#D97706;font-size:12px;margin-top:4px}'+
+    '.name{font-weight:600;font-size:11px;color:#374151;margin:2px 0}'+
+    '.loc{color:#9CA3AF;font-size:10px}'+
+    '.hint{color:#bbb;font-size:9px;margin-top:4px}'+
+    '@media print{@page{margin:10mm}}'+
+    '</style></head><body>'+
+    '<h1>QR Code อุปกรณ์ทั้งหมด ('+items.length+' รายการ)</h1>'+
+    '<div class="grid">'+cards+'</div>'+
+    '<script>window.onload=function(){window.print();}<\/script></body></html>');
+  pw.document.close();
+}
+
+// ===== FILTERS =====
+function applyFilters(){
+  var s=document.getElementById('filter-status').value,u=document.getElementById('filter-urgency').value,t=document.getElementById('filter-technician').value;
+  filteredTickets=allTickets.filter(function(x){if(s&&x.status!==s)return false;if(u&&x.urgency!==u)return false;if(t&&x.assigned_to!==t)return false;return true;});
+  adminCurrentPage=1;renderAdminTable();
+}
+function filterHistory(){historyCurrentPage=1;renderHistoryTickets();}
+
+// ===== KPI =====
+function updateKPIs(){
+  var total=allTickets.length,pending=allTickets.filter(function(t){return t.status==='pending';}).length,prog=allTickets.filter(function(t){return t.status==='in-progress';}).length,comp=allTickets.filter(function(t){return t.status==='completed';}).length;
+  setText('kpi-total',total);setText('kpi-pending',pending);setText('kpi-progress',prog);setText('kpi-completed',comp);
+  setText('sidebar-total',total);setText('chip-pending',pending);setText('chip-progress',prog);setText('chip-completed',comp);
+  var sum=total||1;setW('bar-pending',pending*100/sum);setW('bar-progress',prog*100/sum);setW('bar-completed',comp*100/sum);
+  setText('report-total',total);setText('report-completed',comp);setText('report-open',pending+prog);
+  renderLatestTickets();updateCharts();
+}
+function setText(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+function setW(id,p){var el=document.getElementById(id);if(el)el.style.width=p+'%';}
+
+function renderLatestTickets(){
+  var c=document.getElementById('admin-latest-list');if(!c)return;
+  if(!allTickets.length){c.innerHTML='<div class="text-gray-400 text-base">ยังไม่มีข้อมูล</div>';return;}
+  var s=[...allTickets].sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);}).slice(0,5);
+  c.innerHTML=s.map(function(t){return '<div class="flex items-start gap-2 pb-2 border-b last:border-b-0 border-dashed border-gray-100"><span class="mt-0.5 inline-flex w-6 h-6 rounded-full '+getStatusClass(t.status)+' text-[10px] items-center justify-center shrink-0">'+getStatusText(t.status).charAt(0)+'</span><div class="flex-1 min-w-0"><div class="flex justify-between gap-1"><span class="font-mono text-[11px] font-semibold">'+t.ticket_id+'</span><span class="text-[11px] text-gray-400 shrink-0">'+formatDate(t.created_at)+'</span></div><div class="text-[11px] text-gray-700 truncate">'+escapeHtml(t.equipment||'')+'</div></div></div>';}).join('');
+  // Auto-scroll to bottom so latest ticket aligns with send button
+  setTimeout(function(){c.scrollTop=c.scrollHeight;},80);
+}
+
+function initAdminDashboardUI(){
+  var items=document.querySelectorAll('.admin-menu-item'),secs=document.querySelectorAll('.admin-section');
+  var title=document.getElementById('admin-page-title'),today=document.getElementById('admin-today');
+  var hbg=document.getElementById('admin-hamburger'),sb=document.getElementById('admin-sidebar');
+  if(today){var n=new Date();today.textContent=n.toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});}
+  var titleMap={'admin-overview':'ภาพรวมระบบ','admin-tickets':'รายการแจ้งซ่อม','admin-equipment':'ฐานข้อมูลอุปกรณ์','admin-reports':'สรุปรายงาน'};
+  items.forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var tgt=btn.getAttribute('data-target');
+      items.forEach(function(b){b.classList.remove('active-menu');});
+      btn.classList.add('active-menu');
+      secs.forEach(function(s){s.classList.toggle('hidden',s.id!==tgt);});
+      if(title)title.textContent=titleMap[tgt]||'';
+      if(tgt==='admin-equipment')loadAllEquipment();
+      // Close sidebar on mobile after menu click
+      if(window.innerWidth<1024)closeSidebar();
+    });
+  });
+  if(items.length)items[0].click();
+  if(hbg&&sb){
+    hbg.addEventListener('click',function(){openSidebar();});
+    var mq=window.matchMedia('(min-width:1024px)');
+    mq.addEventListener('change',function(e){
+      if(e.matches){sb.classList.remove('-translate-x-full');document.getElementById('sidebar-backdrop').classList.add('hidden');}
+      else{sb.classList.add('-translate-x-full');}
+    });
+  }
+}
+
+// ===== TICKET MODALS =====
+function openAssignModal(id){document.getElementById('assign-ticket-id').value=id;document.getElementById('assign-modal').classList.remove('hidden');}
+function closeAssignModal(){document.getElementById('assign-modal').classList.add('hidden');document.getElementById('assign-technician').value='';}
+function assignTechnician(){
+  var id=document.getElementById('assign-ticket-id').value,tech=document.getElementById('assign-technician').value;
+  if(!tech){showToast('กรุณาเลือกช่าง','error');return;}
+  var t=allTickets.find(function(x){return x.__backendId===id;});
+  if(t){closeAssignModal();showLoading('กำลังมอบหมายช่าง...');
+    google.script.run.withSuccessHandler(function(r){hideLoading();if(r.success){showToast('มอบหมายงานสำเร็จ','success');loadAllTickets();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');}).withFailureHandler(function(e){hideLoading();showToast('เกิดข้อผิดพลาด','error');}).updateTicket({__backendId:t.__backendId,assigned_to:tech,status:t.status==='pending'?'in-progress':t.status});
+  }
+}
+function openStatusModal(id,cur){document.getElementById('status-ticket-id').value=id;document.querySelectorAll('input[name="new-status"]').forEach(function(r){r.checked=r.value===cur;});document.getElementById('status-modal').classList.remove('hidden');}
+function closeStatusModal(){document.getElementById('status-modal').classList.add('hidden');}
+function changeStatus(){
+  var id=document.getElementById('status-ticket-id').value,ns=document.querySelector('input[name="new-status"]:checked');
+  if(!ns){showToast('กรุณาเลือกสถานะ','error');return;}
+  var t=allTickets.find(function(x){return x.__backendId===id;});
+  if(t){closeStatusModal();showLoading('กำลังอัปเดตสถานะ...');
+    google.script.run.withSuccessHandler(function(r){hideLoading();if(r.success){showToast('เปลี่ยนสถานะสำเร็จ','success');loadAllTickets();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');}).withFailureHandler(function(e){hideLoading();showToast('เกิดข้อผิดพลาด','error');}).updateTicket({__backendId:t.__backendId,status:ns.value,assigned_to:t.assigned_to});
+  }
+}
+function openDeleteModal(id){document.getElementById('delete-ticket-id').value=id;document.getElementById('delete-modal').classList.remove('hidden');}
+function closeDeleteModal(){document.getElementById('delete-modal').classList.add('hidden');}
+function confirmDelete(){
+  var id=document.getElementById('delete-ticket-id').value;
+  closeDeleteModal();showLoading('กำลังลบรายการ...');
+  google.script.run.withSuccessHandler(function(r){hideLoading();if(r.success){showToast('ลบรายการสำเร็จ','success');loadAllTickets();}else showToast('เกิดข้อผิดพลาด: '+r.error,'error');}).withFailureHandler(function(e){hideLoading();showToast('เกิดข้อผิดพลาด','error');}).deleteTicket(id);
+}
+function openImageModal(url){document.getElementById('modal-image').src=url;document.getElementById('image-modal').classList.remove('hidden');}
+function closeImageModal(){document.getElementById('image-modal').classList.add('hidden');document.getElementById('modal-image').src='';}
+function openGuideModal(){document.getElementById('guide-modal').classList.remove('hidden');}
+function closeGuideModal(){document.getElementById('guide-modal').classList.add('hidden');}
+
+// ===== PRINT =====
+var PRINT_CSS='@import url("https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap");body{font-family:"Kanit",sans-serif;padding:20px;background:white}h1{text-align:center;font-size:20px;font-weight:700}table{width:100%;border-collapse:collapse;margin-top:12px}th{background:#f3f4f6;font-weight:600;font-size:12px;padding:9px 8px;border:1px solid #d1d5db;text-align:left}td{border:1px solid #d1d5db;padding:8px;font-size:11px;vertical-align:top}.badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;display:inline-block}.status-pending{background:#9CA3AF;color:white}.status-in-progress{background:#3B82F6;color:white}.status-completed{background:#10B981;color:white}.urgency-low{background:#D1FAE5;color:#065F46}.urgency-medium{background:#FEF3C7;color:#92400E}.urgency-high{background:#FEE2E2;color:#991B1B}';
+function buildPrintRows(list){return list.map(function(t){return '<tr><td>'+t.ticket_id+'</td><td>'+formatDate(t.created_at)+'</td><td>'+escapeHtml(t.requester_name)+'<br><small>'+escapeHtml(t.department)+'</small></td><td>'+escapeHtml(t.equipment)+'<br><small>'+escapeHtml(t.description)+'</small></td><td><span class="badge '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></td><td><span class="badge '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></td><td>'+escapeHtml(t.assigned_to||'-')+'</td></tr>';}).join('');}
+function buildPrintRows(list){return list.map(function(t){return '<tr><td>'+t.ticket_id+'</td><td>'+formatDate(t.created_at)+'</td><td>'+escapeHtml(t.requester_name)+'<br><small>'+escapeHtml(t.department)+'</small></td><td>'+escapeHtml(t.equipment)+'<br><small>'+escapeHtml(t.description)+'</small></td><td><span class="badge '+getStatusClass(t.status)+'">'+getStatusText(t.status)+'</span></td><td><span class="badge '+getUrgencyClass(t.urgency)+'">'+getUrgencyText(t.urgency)+'</span></td><td>'+escapeHtml(t.assigned_to||'-')+'</td></tr>';}).join('');}
+function buildPrintDoc(title,list){var now=new Date(),ds=now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});return '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>'+title+'</title><style>'+PRINT_CSS+'</style></head><body><h1>'+title+'</h1><p style="text-align:center;font-size:12px;color:#888">พิมพ์เมื่อ: '+ds+'</p><table><thead><tr><th>รหัสงาน</th><th>วันที่แจ้ง</th><th>ผู้แจ้ง/แผนก</th><th>อุปกรณ์/รายละเอียด</th><th>สถานะ</th><th>ความเร่งด่วน</th><th>ช่าง</th></tr></thead><tbody>'+buildPrintRows(list)+'</tbody></table><script>window.onload=function(){window.print();}<\/script></body></html>';}
+function printTable(){var pw=window.open('','_blank');pw.document.write(buildPrintDoc('รายงานการแจ้งซ่อม',filteredTickets));pw.document.close();}
+function printHistory(){var sf=document.getElementById('history-status').value,uf=document.getElementById('history-urgency').value;var fil=allTickets.filter(function(t){if(sf&&t.status!==sf)return false;if(uf&&t.urgency!==uf)return false;return true;});var pw=window.open('','_blank');pw.document.write(buildPrintDoc('ประวัติการแจ้งซ่อม',fil));pw.document.close();}
+
+// ===== CAMERA =====
+function openCameraModal(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showToast('เบราว์เซอร์ไม่รองรับกล้อง','error');return;}
+  document.getElementById('camera-modal').style.display='flex';
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(function(s){cameraStream=s;document.getElementById('camera-video').srcObject=s;}).catch(function(e){showToast('ไม่สามารถเข้าถึงกล้อง: '+e.name,'error');closeCameraModal();});
+}
+function closeCameraModal(){document.getElementById('camera-modal').style.display='none';if(cameraStream){cameraStream.getTracks().forEach(function(t){t.stop();});cameraStream=null;document.getElementById('camera-video').srcObject=null;}}
+function capturePhoto(){var v=document.getElementById('camera-video'),c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);var dataUrl=c.toDataURL('image/jpeg');selectedImageData=dataUrl;showImagePreview(dataUrl);closeCameraModal();}
+
+// ===== QR SCANNER =====
+function openQRScannerModal(){
+  var ce=document.getElementById('qr-canvas-element'),ctx=ce.getContext('2d');
+  document.getElementById('qr-scanner-modal').style.display='flex';
+  if(!('BarcodeDetector'in window)){showToast('เบราว์เซอร์ไม่รองรับสแกน QR (ใช้ Chrome/Edge)','error');closeQRScannerModal();return;}
+  qrCodeDetector=new BarcodeDetector({formats:['qr_code']});
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(function(s){
+    qrScannerStream=s;var v=document.createElement('video');v.srcObject=s;v.play();
+    v.addEventListener('loadedmetadata',function(){ce.width=v.videoWidth;ce.height=v.videoHeight;scanQRCode(v,ctx,ce);});
+  }).catch(function(e){showToast('ไม่สามารถเข้าถึงกล้อง: '+e.name,'error');closeQRScannerModal();});
+}
+function closeQRScannerModal(){
+  var ce=document.getElementById('qr-canvas-element');
+  document.getElementById('qr-scanner-modal').style.display='none';
+  if(qrScannerStream){qrScannerStream.getTracks().forEach(function(t){t.stop();});qrScannerStream=null;}
+  if(ce)ce.getContext('2d').clearRect(0,0,ce.width,ce.height);
+}
+function scanQRCode(v,ctx,ce){
+  if(!qrScannerStream){return;}
+  ctx.drawImage(v,0,0,ce.width,ce.height);
+  qrCodeDetector.detect(ce).then(function(bc){
+    if(bc.length){
+      var q=bc[0].rawValue;closeQRScannerModal();
+      showLoading('กำลังโหลดข้อมูลอุปกรณ์...');
+      google.script.run
+        .withSuccessHandler(function(r){hideLoading();if(r.success&&r.data){var eq=r.data,loc=eq.location?' ('+eq.location+')':'';document.getElementById('equipment').value=eq.equipment_name+loc;if(eq.category){var cs=document.getElementById('equipment-category'),m=Array.from(cs.options).find(function(o){return o.value.toLowerCase()===String(eq.category).toLowerCase();});if(m)cs.value=m.value;}if(eq.note&&!document.getElementById('description').value)document.getElementById('description').value='อุปกรณ์: '+eq.equipment_name+(loc?' | ตำแหน่ง: '+eq.location:'')+'\nหมายเหตุ: '+eq.note;showToast('โหลดข้อมูลอุปกรณ์สำเร็จ ✓','success');}else{document.getElementById('equipment').value=q;showToast('ไม่พบอุปกรณ์รหัส: '+q,'error');}})
+        .withFailureHandler(function(err){hideLoading();document.getElementById('equipment').value=q;showToast('เกิดข้อผิดพลาด: '+err.message,'error');})
+        .getEquipmentByCode(q);
+    }else{requestAnimationFrame(function(){scanQRCode(v,ctx,ce);});}
+  }).catch(function(){requestAnimationFrame(function(){scanQRCode(v,ctx,ce);});});
+}
+
+// ===== CHARTS =====
+function updateCharts(){
+  if(typeof Chart==='undefined')return;
+  var sc={pending:0,'in-progress':0,completed:0},uc={high:0,medium:0,low:0},dm={};
+  allTickets.forEach(function(t){sc[t.status]=(sc[t.status]||0)+1;uc[t.urgency]=(uc[t.urgency]||0)+1;if(t.created_at){var d=new Date(t.created_at),k=d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit'});dm[k]=(dm[k]||0)+1;}});
+  var dl=Object.keys(dm).sort(),dv=dl.map(function(l){return dm[l];});
+  if(chartByStatus)chartByStatus.destroy();if(chartByUrgency)chartByUrgency.destroy();if(chartByDate)chartByDate.destroy();
+  var cs=document.getElementById('chartByStatus'),cu=document.getElementById('chartByUrgency'),cd=document.getElementById('chartByDate');
+  if(cs)chartByStatus=new Chart(cs,{type:'bar',data:{labels:['รอรับงาน','กำลังดำเนินการ','เสร็จสิ้น'],datasets:[{label:'จำนวนงาน',data:[sc.pending,sc['in-progress'],sc.completed],backgroundColor:['#9CA3AF','#3B82F6','#10B981']}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+  if(cu)chartByUrgency=new Chart(cu,{type:'pie',data:{labels:['สูง','ปานกลาง','ต่ำ'],datasets:[{data:[uc.high,uc.medium,uc.low],backgroundColor:['#F87171','#FBBF24','#34D399']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+  if(cd&&dl.length)chartByDate=new Chart(cd,{type:'line',data:{labels:dl,datasets:[{label:'จำนวนงาน',data:dv,borderColor:'#6366F1',backgroundColor:'rgba(99,102,241,0.2)',tension:0.3,fill:true,pointRadius:3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+}
+
+// ===== HELPERS =====
+function getStatusClass(s){return{pending:'status-pending','in-progress':'status-in-progress',completed:'status-completed'}[s]||'status-pending';}
+function getStatusText(s){return{pending:'รอรับงาน','in-progress':'กำลังดำเนินการ',completed:'เสร็จสิ้น'}[s]||'รอรับงาน';}
+function getUrgencyClass(u){return{low:'urgency-low',medium:'urgency-medium',high:'urgency-high'}[u]||'urgency-medium';}
+function getUrgencyText(u){return{low:'ต่ำ',medium:'ปานกลาง',high:'สูง'}[u]||'ปานกลาง';}
+function formatDate(d){if(!d)return'-';return new Date(d).toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'});}
+function escapeHtml(s){if(!s)return'';var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function openSidebar(){
+  var sb=document.getElementById('admin-sidebar'),bd=document.getElementById('sidebar-backdrop');
+  if(sb)sb.classList.remove('-translate-x-full');
+  if(bd)bd.classList.remove('hidden');
+}
+function closeSidebar(){
+  var sb=document.getElementById('admin-sidebar'),bd=document.getElementById('sidebar-backdrop');
+  if(sb)sb.classList.add('-translate-x-full');
+  if(bd)bd.classList.add('hidden');
+}
+function escapeHtmlPrint(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg,type){
+  // Always remove and re-append toast to body so it's above everything
+  var old=document.getElementById('toast');if(old)old.remove();
+  var t=document.createElement('div');t.id='toast';
+  t.style.cssText='position:fixed!important;top:20px!important;right:20px!important;z-index:9999999!important;padding:12px 24px;border-radius:12px;font-family:Prompt,sans-serif;font-size:16px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.25);animation:fadeIn .3s ease-out;min-width:200px;text-align:center;';
+  t.style.background=(type==='error')?'#EF4444':'#10B981';t.style.color='#fff';
+  t.textContent=msg;document.body.appendChild(t);
+  clearTimeout(window._toastTimer);window._toastTimer=setTimeout(function(){if(t&&t.parentNode)t.remove();},3200);
+}
+</script>
+</body>
+</html>
