@@ -4,6 +4,7 @@ const DRIVE_FOLDER_ID = '18IfyUFmCWxPIYVcCwlCU_ByhtkSTRWNv';            //ใส
 // Telegram Bot setup:
 // 1) สร้าง Bot โดยคุยกับ @BotFather ใน Telegram แล้วนำ Token มาใส่ด้านล่าง
 // 2) หา Chat ID / Group ID โดยเพิ่ม bot เข้าแชทหรือกลุ่ม แล้วเรียก Telegram API เช่น getUpdates
+const TELEGRAM_API_BASE = 'https://api.telegram.org/bot';
 const TELEGRAM_BOT_TOKEN = ''; // ใส่ Token ของ Telegram Bot เช่น '123456789:AAF...'
 const TELEGRAM_CHAT_ID = '';   // ใส่ Chat ID หรือ Group ID เช่น '-1001234567890'
 const DATA_SHEET_NAME = 'Data';
@@ -279,7 +280,7 @@ function sendTelegramNotification(ticketData) {
       text: message,
       parse_mode: 'HTML'
     };
-    UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/' + method, {
+    UrlFetchApp.fetch(TELEGRAM_API_BASE + TELEGRAM_BOT_TOKEN + '/' + method, {
       method: 'post',
       contentType: 'application/json',
       payload: JSON.stringify(payload),
